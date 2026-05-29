@@ -106,27 +106,30 @@ export const useStore = create<AppState>((set, get) => ({
   addWorkout: (log) =>
     set((s) => {
       const qp = { ...s.questProgress };
-      // ✅ d_cardio_20: คาร์ดิโอ 20 นาที
-      if (log.activityId === "cardio" && (log.duration || 0) >= 20) {
-        qp.d_cardio_20 = (qp.d_cardio_20 || 0) + 1;
+
+      // ===== STACKING LOGIC =====
+      // daily quests (สะสมเวลา/ระยะทางไปทุกเควสที่ตรงประเภท)
+      if (log.activityId === "cardio") {
+        qp.d_cardio_20 = (qp.d_cardio_20 || 0) + (log.duration || 0);
+        qp.w_cardio_3 = (qp.w_cardio_3 || 0) + 1; // weekly: นับครั้ง
       }
-      // ✅ d_stretch: ยืดกล้ามเนื้อ 10 นาที
-      if (log.activityId === "yoga" && (log.duration || 0) >= 10) {
-        qp.d_stretch = (qp.d_stretch || 0) + 1;
+      if (log.activityId === "yoga") {
+        qp.d_stretch = (qp.d_stretch || 0) + (log.duration || 0);
       }
-      // ✅ d_steps_5k: เดิน (อาศัยระยะทาง)
-      if (log.activityId === "walk" && (log.distance || 0) >= 5) {
-        qp.d_steps_5k = (qp.d_steps_5k || 0) + 1;
+      if (log.activityId === "walk") {
+        // แปลง กม → ก้าว (1 กม ≈ 1312 ก้าว)
+        const steps = Math.round((log.distance || 0) * 1312);
+        qp.d_steps_5k = (qp.d_steps_5k || 0) + steps;
+      }
+      if (log.activityId === "weights") {
+        // weights: increment for w_gym_4 (นับวันที่)
       }
 
-      // Weekly quests
-      if (log.activityId === "cardio") {
-        qp.w_cardio_3 = (qp.w_cardio_3 || 0) + 1;
-      }
       // w_cal_2000: สะสมแคลอรี
       if (log.calories) {
         qp.w_cal_2000 = (qp.w_cal_2000 || 0) + log.calories;
       }
+
       // w_all_types: จำนวนประเภทกิจกรรมที่ไม่ซ้ำ
       const allIds = [log.activityId || log.activity, ...s.workoutLog.map((l) => l.activityId || l.activity)];
       const unique = new Set(allIds);
@@ -164,7 +167,10 @@ export const useStore = create<AppState>((set, get) => ({
     const reset = Date.UTC(thaiNow.getUTCFullYear(), thaiNow.getUTCMonth(), thaiNow.getUTCDate(), 22, 0, 0);
     const last = get().lastDailyReset;
     if (!last || new Date(last).getTime() < reset) {
-      set({ questClaimed: [], shopBought: [], lastDailyReset: new Date(reset).toISOString() });
+      // Clear daily quests progress + shop
+      const qp = { ...get().questProgress };
+      Object.keys(qp).forEach((k) => { if (k.startsWith("d_")) delete qp[k]; });
+      set({ questClaimed: [], shopBought: [], questProgress: qp, lastDailyReset: new Date(reset).toISOString() });
     }
   },
   checkWeeklyReset: () => {

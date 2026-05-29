@@ -6,10 +6,10 @@ import { colors } from "../../theme/colors";
 
 const DQ = [
   { id: "d_exercise", name: "🏃 ออกกำลังกายวันนี้", target: 1, reward: 5 },
-  { id: "d_cardio_20", name: "🏃‍♂️ คาร์ดิโอ 20 นาที", target: 1, reward: 5 },
+  { id: "d_cardio_20", name: "🏃‍♂️ คาร์ดิโอ 20 นาที", target: 20, reward: 5, unit: "นาที" },
   { id: "d_steps_5k", name: "🚶 เดิน 5,000 ก้าว", target: 5000, reward: 8, unit: "ก้าว" },
   { id: "d_water_8", name: "💧 ดื่มน้ำ 8 แก้ว", target: 8, reward: 3, unit: "แก้ว" },
-  { id: "d_stretch", name: "🧘 ยืดกล้ามเนื้อ 10 นาที", target: 1, reward: 4 },
+  { id: "d_stretch", name: "🧘 ยืดกล้ามเนื้อ 10 นาที", target: 10, reward: 4, unit: "นาที" },
 ];
 const WQ = [
   { id: "w_cardio_3", name: "🏃 คาร์ดิโอครบ 3 ครั้ง", target: 3, reward: 15 },

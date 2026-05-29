@@ -113,9 +113,9 @@ export default function DesktopUpload() {
     const recent = workoutLog.filter((l) => l.imageUri).slice(0, 8);
     // คำนวณเควสที่ progress
     const DQ_MAP: Record<string, { name: string; target: number }> = {
-      d_cardio_20: { name: "🏃‍♂️ คาร์ดิโอ 20 นาที", target: 1 },
-      d_stretch: { name: "🧘 ยืดกล้ามเนื้อ 10 นาที", target: 1 },
-      d_steps_5k: { name: "🚶 เดิน 5,000 ก้าว", target: 1 },
+      d_cardio_20: { name: "🏃‍♂️ คาร์ดิโอ 20 นาที", target: 20 },
+      d_stretch: { name: "🧘 ยืดกล้ามเนื้อ 10 นาที", target: 10 },
+      d_steps_5k: { name: "🚶 เดิน 5,000 ก้าว", target: 5000 },
     };
     const qp = questProgress;
     const doneQuests = Object.entries(DQ_MAP).filter(([id, q]) => (qp[id] || 0) >= q.target);
