@@ -6,12 +6,19 @@ export interface WorkoutLog {
   activity: string;
   activityId?: string;
   duration?: number;
+  distance?: number;
+  calories?: number;
   coins: number;
   bonus: string | null;
   verified: boolean;
   imageUri?: string;
   fraudScore?: number;
   riskLevel?: string;
+}
+
+export interface UserProfile {
+  weight?: number;
+  height?: number;
 }
 
 export interface UserInfo {
@@ -24,6 +31,7 @@ export interface UserInfo {
 
 export interface AppState {
   user: UserInfo | null;
+  profile: UserProfile;
   coins: number;
   totalCoinsEarned: number;
   streak: number;
@@ -44,6 +52,7 @@ export interface AppState {
   _hydrated: boolean;
   setUser: (u: UserInfo | null) => void;
   setBackend: (b: boolean) => void;
+  setProfile: (p: UserProfile) => void;
   addCoins: (n: number) => void;
   spendCoins: (n: number) => boolean;
   addWorkout: (log: WorkoutLog) => void;
@@ -59,6 +68,7 @@ export interface AppState {
 
 export const useStore = create<AppState>((set, get) => ({
   user: null,
+  profile: {},
   coins: 0,
   totalCoinsEarned: 0,
   streak: 0,
@@ -85,6 +95,7 @@ export const useStore = create<AppState>((set, get) => ({
     set(raw ? { ...JSON.parse(raw), user: u } : { user: u, ...resetData });
   },
   setBackend: (b) => set({ backendAvailable: b }),
+  setProfile: (p) => set({ profile: p }),
 
   addCoins: (n) => set((s) => ({ coins: s.coins + n, totalCoinsEarned: s.totalCoinsEarned + n })),
   spendCoins: (n) => {

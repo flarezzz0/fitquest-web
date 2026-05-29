@@ -40,7 +40,7 @@ function HeatCell({ count, max, index }: { count: number; max: number; index: nu
 }
 
 export default function ProfileScreen() {
-  const { level, totalCoinsEarned, totalWorkouts, longestStreak, workoutLog, streak, todayCount, clearAllData, user, setUser } = useStore();
+  const { level, totalCoinsEarned, totalWorkouts, longestStreak, workoutLog, streak, todayCount, clearAllData, user, setUser, profile, setProfile } = useStore();
   const lv = LV[level - 1] || LV[LV.length - 1];
 
   // Edit profile state
@@ -48,6 +48,8 @@ export default function ProfileScreen() {
   const [displayName, setDisplayName] = useState("");
   const [editBio, setEditBio] = useState("");
   const [editPic, setEditPic] = useState("");
+  const [editWt, setEditWt] = useState(String(profile.weight || ""));
+  const [editHt, setEditHt] = useState(String(profile.height || ""));
 
   // Clear data confirmation
   const [showClear, setShowClear] = useState(false);
@@ -127,7 +129,7 @@ export default function ProfileScreen() {
               </View>
             </>
           )}
-          <TouchableOpacity onPress={() => { setDisplayName(user?.name || lv.title); setEditBio(user?.bio || ""); setEditPic(""); setShowEdit(true); }}
+          <TouchableOpacity onPress={() => { setDisplayName(user?.name || lv.title); setEditBio(user?.bio || ""); setEditPic(""); setEditWt(String(profile.weight || "")); setEditHt(String(profile.height || "")); setShowEdit(true); }}
             style={{ padding: 8, backgroundColor: colors.card, borderRadius: 8, borderWidth: 1, borderColor: colors.cardBorder }}>
             <Text style={{ fontSize: 16 }}>✏️</Text>
           </TouchableOpacity>
@@ -270,9 +272,14 @@ export default function ProfileScreen() {
               <View style={{ width: 40, height: 40, borderRadius: 6, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 11, fontWeight: "600", color: colors.text }}>{l.activity}</Text>
-              <View style={{ flexDirection: "row", gap: 6 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 4, marginTop: 2 }}>
                 <Text style={{ fontSize: 9, color: colors.gold }}>+{l.coins}🪙</Text>
-                <Text style={{ fontSize: 9, color: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }}>🛡️ Fraud: {l.fraudScore ?? 0}</Text>
+                {l.duration ? <Text style={{ fontSize: 9, color: colors.textDim }}>⏱️{l.duration}น</Text> : null}
+                {l.distance ? <Text style={{ fontSize: 9, color: colors.textDim }}>📏{l.distance}กม</Text> : null}
+                {l.calories ? <Text style={{ fontSize: 9, color: colors.textDim }}>🔥{l.calories}kcal</Text> : null}
+              </View>
+              <View style={{ flexDirection: "row", gap: 6, marginTop: 1 }}>
+                <Text style={{ fontSize: 9, color: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }}>🛡️ {l.fraudScore ?? 0}</Text>
                 {l.riskLevel === "high" && <Text style={{ fontSize: 9, color: colors.error }}>⚠️ เสี่ยง</Text>}
               </View>
             </View>
@@ -300,12 +307,23 @@ export default function ProfileScreen() {
               <Text style={{ fontSize: 13, color: colors.textDim }}>{editPic ? "เปลี่ยนรูปแล้ว ✅" : "เลือกรูปโปรไฟล์"}</Text>
             </TouchableOpacity>
 
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 12 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>⚖️ น้ำหนัก (กก.)</Text>
+                <TextInput style={s.modalInput} value={editWt} onChangeText={setEditWt} keyboardType="decimal-pad" placeholder="65" placeholderTextColor={colors.textMuted} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>📏 ส่วนสูง (ซม.)</Text>
+                <TextInput style={s.modalInput} value={editHt} onChangeText={setEditHt} keyboardType="decimal-pad" placeholder="170" placeholderTextColor={colors.textMuted} />
+              </View>
+            </View>
+
             <View style={{ flexDirection: "row", gap: 10, marginTop: 20 }}>
               <TouchableOpacity onPress={() => setShowEdit(false)}
                 style={{ flex: 1, padding: 12, borderRadius: 10, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center" }}>
                 <Text style={{ fontSize: 14, fontWeight: "600", color: colors.textDim }}>ยกเลิก</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { if (user) setUser({ ...user, name: displayName, bio: editBio }); setShowEdit(false); Alert.alert("✅", "บันทึกโปรไฟล์แล้ว"); }}
+              <TouchableOpacity onPress={() => { if (user) setUser({ ...user, name: displayName, bio: editBio }); setProfile({ weight: parseFloat(editWt) || 0, height: parseFloat(editHt) || 0 }); setShowEdit(false); Alert.alert("✅", "บันทึกโปรไฟล์แล้ว"); }}
                 style={{ flex: 1, padding: 12, borderRadius: 10, backgroundColor: colors.primary, alignItems: "center" }}>
                 <Text style={{ fontSize: 14, fontWeight: "600", color: "#fff" }}>บันทึก</Text>
               </TouchableOpacity>

@@ -1,17 +1,32 @@
-import React from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, ScrollView, StyleSheet, Modal, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useStore } from "../store/useStore";
 import { colors } from "../theme/colors";
 import CoinCard from "./CoinCard";
 import StreakBanner from "./StreakBanner";
 
 export default function DesktopDashboard() {
-  const { coins, level, totalCoinsEarned, streak, frozenUsed, totalWorkouts, todayCount, weekCount, workoutLog, questProgress } = useStore();
+  const { coins, level, totalCoinsEarned, streak, frozenUsed, totalWorkouts, todayCount, weekCount, workoutLog, questProgress, user, profile, setProfile } = useStore();
 
   const mult = streak <= 0 ? 1 : streak <= 3 ? 1 : streak <= 7 ? 1.5 : 2;
   const dailyPct = Math.min(100, (todayCount / 5) * 100);
 
+  // First-time setup
+  const [showSetup, setShowSetup] = useState(false);
+  const [setupWt, setSetupWt] = useState("");
+  const [setupHt, setSetupHt] = useState("");
+  useEffect(() => {
+    if (user && !profile.weight) setShowSetup(true);
+  }, [user]);
+
+  const calcBMR = (w: number, h: number) => Math.round(10 * w + 6.25 * h - 5 * 25 - 161);
+  const calcBMI = (w: number, h: number) => Math.round((w / ((h / 100) * (h / 100))) * 10) / 10;
+  const bmr = profile.weight && profile.height ? calcBMR(profile.weight, profile.height) : 0;
+  const bmi = profile.weight && profile.height ? calcBMI(profile.weight, profile.height) : 0;
+  const dailyRecommend = bmr ? Math.round(bmr * 1.375) : 0;
+
   return (
+    <>
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* Page Header */}
       <View style={styles.pageHeader}>
@@ -45,6 +60,24 @@ export default function DesktopDashboard() {
           <Text style={styles.statLabel}>📅 อาทิตย์นี้</Text>
         </View>
       </View>
+
+      {/* BMR Row */}
+      {bmr > 0 && (
+        <View style={{ flexDirection: "row", gap: 16, marginBottom: 28 }}>
+          <View style={[styles.statCard]}>
+            <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>🔥 BMR</Text>
+            <Text style={{ fontSize: 24, fontWeight: "700", color: colors.success }}>{bmr} kcal</Text>
+          </View>
+          <View style={[styles.statCard]}>
+            <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>📏 BMI</Text>
+            <Text style={{ fontSize: 24, fontWeight: "700", color: colors.primary }}>{bmi}</Text>
+          </View>
+          <View style={[styles.statCard]}>
+            <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>🎯 แนะนำต่อวัน</Text>
+            <Text style={{ fontSize: 24, fontWeight: "700", color: colors.gold }}>{dailyRecommend} kcal</Text>
+          </View>
+        </View>
+      )}
 
       {/* Main Content Grid — 2 columns */}
       <View style={styles.mainGrid}>
@@ -128,6 +161,41 @@ export default function DesktopDashboard() {
         </View>
       </View>
     </ScrollView>
+
+      {/* First-time Setup Modal */}
+      <Modal visible={showSetup} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.7)", justifyContent: "center", padding: 24 }}>
+          <View style={{ backgroundColor: colors.card, borderRadius: 20, padding: 28, borderWidth: 1, borderColor: colors.cardBorder }}>
+            <Text style={{ fontSize: 22, fontWeight: "800", color: colors.text, textAlign: "center" }}>🏃 ยินดีต้อนรับ!</Text>
+            <Text style={{ fontSize: 13, color: colors.textDim, textAlign: "center", marginTop: 6, marginBottom: 20 }}>
+              กรุณากรอกน้ำหนักและส่วนสูงของคุณ เพื่อคำนวณ BMR
+            </Text>
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 12, color: colors.textDim, marginBottom: 6 }}>⚖️ น้ำหนัก (กก.)</Text>
+                <TextInput style={{ backgroundColor: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 14, fontSize: 16, color: colors.text, borderWidth: 1, borderColor: colors.cardBorder, textAlign: "center" }}
+                  value={setupWt} onChangeText={setSetupWt} keyboardType="decimal-pad" placeholder="65" placeholderTextColor={colors.textMuted} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 12, color: colors.textDim, marginBottom: 6 }}>📏 ส่วนสูง (ซม.)</Text>
+                <TextInput style={{ backgroundColor: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 14, fontSize: 16, color: colors.text, borderWidth: 1, borderColor: colors.cardBorder, textAlign: "center" }}
+                  value={setupHt} onChangeText={setSetupHt} keyboardType="decimal-pad" placeholder="170" placeholderTextColor={colors.textMuted} />
+              </View>
+            </View>
+            <TouchableOpacity onPress={() => {
+              const w = parseFloat(setupWt); const h = parseFloat(setupHt);
+              if (!w || !h || w < 20 || w > 300 || h < 50 || h > 250) {
+                Alert.alert("⚠️", "กรุณากรอกน้ำหนักและส่วนสูงให้ถูกต้อง"); return;
+              }
+              setProfile({ weight: w, height: h }); setShowSetup(false);
+            }} style={{ marginTop: 20, padding: 16, backgroundColor: colors.primary, borderRadius: 14, alignItems: "center" }}>
+              <Text style={{ fontSize: 16, fontWeight: "700", color: "#fff" }}>✅ บันทึก</Text>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 10, color: colors.textMuted, textAlign: "center", marginTop: 8 }}>แก้ไขภายหลังได้ที่หน้าโปรไฟล์</Text>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 

@@ -66,7 +66,7 @@ export default function DesktopUpload() {
           fraudScore = res.data.antiCheat?.fraudScore || 0;
           riskLevel = res.data.antiCheat?.riskLevel || "low";
           addCoins(c);
-          addWorkout({ date: new Date().toISOString(), activity: a?.name || "", coins: c, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore, riskLevel });
+          addWorkout({ date: new Date().toISOString(), activity: a?.name || "", duration: parseInt(dur) || 0, distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: c, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore, riskLevel });
           updateStreak(streak + 1);
           setDone({ coins: c, score: fraudScore, risk: riskLevel });
         } else { Alert.alert("❌ ไม่ผ่าน", res.data.messages?.join("\n") || ""); }
@@ -74,7 +74,7 @@ export default function DesktopUpload() {
         await runCheck();
         fraudScore = Math.floor(Math.random() * 15);
         addCoins(total);
-        addWorkout({ date: new Date().toISOString(), activity: a?.name || "", coins: total, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore, riskLevel });
+        addWorkout({ date: new Date().toISOString(), activity: a?.name || "", duration: parseInt(dur) || 0, distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: total, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore, riskLevel });
         updateStreak(streak + 1);
         setDone({ coins: total, score: fraudScore, risk: "low" });
       }

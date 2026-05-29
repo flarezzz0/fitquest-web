@@ -92,7 +92,7 @@ export default function UploadScreen() {
         const res = await uploadActivity(fd);
         if (res.data.status === "approved") {
           const c = res.data.totalCoins || total; const fs = res.data.antiCheat?.fraudScore || 0; const rl = res.data.antiCheat?.riskLevel || "low";
-          addCoins(c); addWorkout({ date: new Date().toISOString(), activity: a?.name || "", coins: c, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore: fs, riskLevel: rl }); updateStreak(streak + 1);
+          addCoins(c); addWorkout({ date: new Date().toISOString(), activity: a?.name || "", duration: parseDuration(dur), distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: c, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore: fs, riskLevel: rl }); updateStreak(streak + 1);
           setPage({ type: "result", coins: c, score: fs, risk: rl, ok: true, msg: `✅ AI ตรวจสอบผ่าน!` });
         } else {
           setPage({ type: "result", coins: 0, score: 0, risk: "high", ok: false, msg: res.data.messages?.join("\n") || "❌ ตรวจสอบไม่ผ่าน" });
@@ -104,7 +104,7 @@ export default function UploadScreen() {
         if (!passed) {
           setPage({ type: "result", coins: 0, score: fs, risk: rl, ok: false, msg: `🚨 ตรวจพบความผิดปกติ\nคะแนน: ${fs}/100\nสาเหตุ: ${flags.map((f: any) => f.code).join(", ")}` });
         } else {
-          addCoins(total); addWorkout({ date: new Date().toISOString(), activity: a?.name || "", coins: total, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore: fs, riskLevel: rl }); updateStreak(streak + 1);
+          addCoins(total); addWorkout({ date: new Date().toISOString(), activity: a?.name || "", duration: parseDuration(dur), distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: total, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore: fs, riskLevel: rl }); updateStreak(streak + 1);
           setPage({ type: "result", coins: total, score: fs, risk: rl, ok: true, msg: `✅ Local verification passed!` });
         }
       }

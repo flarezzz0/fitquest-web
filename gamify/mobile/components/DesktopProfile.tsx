@@ -6,11 +6,13 @@ import { colors } from "../theme/colors";
 const LV = [{ l: 1, title: "นักผจญภัยมือใหม่", badge: "🌱" }, { l: 2, title: "นักสู้ผู้เริ่มต้น", badge: "⚔️" }, { l: 3, title: "อัศวินฟิตเนส", badge: "🛡️" }, { l: 4, title: "จอมพลแห่งยิม", badge: "👑" }];
 
 export default function DesktopProfile() {
-  const { level, totalCoinsEarned, totalWorkouts, longestStreak, workoutLog, streak, todayCount, clearAllData } = useStore();
+  const { level, totalCoinsEarned, totalWorkouts, longestStreak, workoutLog, streak, todayCount, clearAllData, profile, setProfile } = useStore();
   const lv = LV[level - 1] || LV[LV.length - 1];
   const [showEdit, setShowEdit] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [editBio, setEditBio] = useState("");
+  const [editWt, setEditWt] = useState(String(profile.weight || ""));
+  const [editHt, setEditHt] = useState(String(profile.height || ""));
   const [showClear, setShowClear] = useState(false);
   const [clearPassword, setClearPassword] = useState("");
 
@@ -46,7 +48,7 @@ export default function DesktopProfile() {
           </View>
         </View>
         <View style={{ flexDirection: "row", gap: 12 }}>
-          <TouchableOpacity onPress={() => { setDisplayName(lv.title); setEditBio(lv.title); setShowEdit(true); }}
+          <TouchableOpacity onPress={() => { setDisplayName(lv.title); setEditBio(lv.title); setEditWt(String(profile.weight || "")); setEditHt(String(profile.height || "")); setShowEdit(true); }}
             style={{ padding: 10, backgroundColor: colors.card, borderRadius: 10, borderWidth: 1, borderColor: colors.cardBorder }}>
             <Text style={{ fontSize: 18 }}>✏️</Text>
           </TouchableOpacity>
@@ -129,8 +131,13 @@ export default function DesktopProfile() {
             <View style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: colors.card, alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
           <View style={{ flex: 1, marginLeft: 8 }}>
             <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text }}>{l.activity}</Text>
-            <View style={{ flexDirection: "row", gap: 8 }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
               <Text style={{ fontSize: 10, color: colors.gold }}>+{l.coins}🪙</Text>
+              {l.duration ? <Text style={{ fontSize: 10, color: colors.textDim }}>⏱️{l.duration}น</Text> : null}
+              {l.distance ? <Text style={{ fontSize: 10, color: colors.textDim }}>📏{l.distance}กม</Text> : null}
+              {l.calories ? <Text style={{ fontSize: 10, color: colors.textDim }}>🔥{l.calories}kcal</Text> : null}
+            </View>
+            <View style={{ flexDirection: "row", gap: 8, marginTop: 1 }}>
               <Text style={{ fontSize: 10, color: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }}>🛡️ Fraud: {l.fraudScore ?? 0}</Text>
             </View>
           </View>
@@ -148,11 +155,21 @@ export default function DesktopProfile() {
             <TextInput style={s.modalInput} value={displayName} onChangeText={setDisplayName} placeholder="ชื่อ" placeholderTextColor={colors.textMuted} />
             <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4, marginTop: 12 }}>คำอธิบาย</Text>
             <TextInput style={[s.modalInput, { height: 60 }]} value={editBio} onChangeText={setEditBio} placeholder="คำอธิบาย" placeholderTextColor={colors.textMuted} multiline />
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 12 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>⚖️ น้ำหนัก (กก.)</Text>
+                <TextInput style={s.modalInput} value={editWt} onChangeText={setEditWt} keyboardType="decimal-pad" placeholder="65" placeholderTextColor={colors.textMuted} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>📏 ส่วนสูง (ซม.)</Text>
+                <TextInput style={s.modalInput} value={editHt} onChangeText={setEditHt} keyboardType="decimal-pad" placeholder="170" placeholderTextColor={colors.textMuted} />
+              </View>
+            </View>
             <View style={{ flexDirection: "row", gap: 10, marginTop: 20 }}>
               <TouchableOpacity onPress={() => setShowEdit(false)} style={{ flex: 1, padding: 12, borderRadius: 10, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center" }}>
                 <Text style={{ fontSize: 14, fontWeight: "600", color: colors.textDim }}>ยกเลิก</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { setShowEdit(false); Alert.alert("✅", "บันทึกโปรไฟล์แล้ว"); }} style={{ flex: 1, padding: 12, borderRadius: 10, backgroundColor: colors.primary, alignItems: "center" }}>
+              <TouchableOpacity onPress={() => { setProfile({ weight: parseFloat(editWt) || 0, height: parseFloat(editHt) || 0 }); setShowEdit(false); Alert.alert("✅", "บันทึกโปรไฟล์แล้ว"); }} style={{ flex: 1, padding: 12, borderRadius: 10, backgroundColor: colors.primary, alignItems: "center" }}>
                 <Text style={{ fontSize: 14, fontWeight: "600", color: "#fff" }}>บันทึก</Text>
               </TouchableOpacity>
             </View>
