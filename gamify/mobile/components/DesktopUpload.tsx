@@ -27,8 +27,8 @@ export default function DesktopUpload() {
   const [cal, setCal] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
-  const [done, setDone] = useState<{ coins: number; score?: number; risk?: string } | null>(null);
-  const { streak, addCoins, addWorkout, updateStreak, backendAvailable, workoutLog, profile } = useStore();
+  const [done, setDone] = useState<{ coins: number; score?: number; risk?: string; activity?: string; activityId?: string; duration?: number; distance?: number; calories?: number } | null>(null);
+  const { streak, addCoins, addWorkout, updateStreak, backendAvailable, workoutLog, profile, questProgress } = useStore();
   const calUserEdited = React.useRef(false);
 
   // MET-based calorie calculator
@@ -92,17 +92,17 @@ export default function DesktopUpload() {
           fraudScore = res.data.antiCheat?.fraudScore || 0;
           riskLevel = res.data.antiCheat?.riskLevel || "low";
           addCoins(c);
-          addWorkout({ date: new Date().toISOString(), activity: a?.name || "", duration: parseInt(dur) || 0, distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: c, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore, riskLevel });
+          addWorkout({ date: new Date().toISOString(), activity: a?.name || "", activityId: act, duration: parseInt(dur) || 0, distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: c, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore, riskLevel });
           updateStreak(streak + 1);
-          setDone({ coins: c, score: fraudScore, risk: riskLevel });
+          setDone({ coins: c, score: fraudScore, risk: riskLevel, activity: a?.name || "", activityId: act, duration: parseInt(dur) || 0, distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0 });
         } else { Alert.alert("❌ ไม่ผ่าน", res.data.messages?.join("\n") || ""); }
       } else {
         await runCheck();
         fraudScore = Math.floor(Math.random() * 15);
         addCoins(total);
-        addWorkout({ date: new Date().toISOString(), activity: a?.name || "", duration: parseInt(dur) || 0, distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: total, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore, riskLevel });
+        addWorkout({ date: new Date().toISOString(), activity: a?.name || "", activityId: act, duration: parseInt(dur) || 0, distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: total, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore, riskLevel });
         updateStreak(streak + 1);
-        setDone({ coins: total, score: fraudScore, risk: "low" });
+        setDone({ coins: total, score: fraudScore, risk: "low", activity: a?.name || "", activityId: act, duration: parseInt(dur) || 0, distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0 });
       }
     } catch (e: any) { Alert.alert("❌ Error", e.message); }
     setLoading(false);
@@ -111,13 +111,53 @@ export default function DesktopUpload() {
   // ====== SUCCESS SCREEN ======
   if (done) {
     const recent = workoutLog.filter((l) => l.imageUri).slice(0, 8);
+    // คำนวณเควสที่ progress
+    const DQ_MAP: Record<string, { name: string; target: number }> = {
+      d_cardio_20: { name: "🏃‍♂️ คาร์ดิโอ 20 นาที", target: 1 },
+      d_stretch: { name: "🧘 ยืดกล้ามเนื้อ 10 นาที", target: 1 },
+      d_steps_5k: { name: "🚶 เดิน 5,000 ก้าว", target: 1 },
+    };
+    const qp = questProgress;
+    const doneQuests = Object.entries(DQ_MAP).filter(([id, q]) => (qp[id] || 0) >= q.target);
+    const inProgressQuests = Object.entries(DQ_MAP).filter(([id, q]) => {
+      const p = qp[id] || 0;
+      return p > 0 && p < q.target;
+    });
     return (
       <ScrollView contentContainerStyle={s.container} showsVerticalScrollIndicator={false}>
-        <View style={{ alignItems: "center", marginBottom: 28, marginTop: 40 }}>
-          <Text style={{ fontSize: 64 }}>🎉</Text>
-          <Text style={{ fontSize: 28, fontWeight: "800", color: colors.success, marginTop: 12 }}>+{done.coins} 🪙</Text>
-          <Text style={{ fontSize: 14, color: colors.textDim }}>บันทึกสำเร็จ!</Text>
+        <View style={{ alignItems: "center", marginBottom: 24, marginTop: 20 }}>
+          <Text style={{ fontSize: 56 }}>🎉</Text>
+          <Text style={{ fontSize: 28, fontWeight: "800", color: colors.success, marginTop: 8 }}>+{done.coins} 🪙</Text>
+          <Text style={{ fontSize: 14, color: colors.textDim, marginTop: 2 }}>บันทึกสำเร็จ!</Text>
         </View>
+
+        {/* Activity Info */}
+        <View style={s.glassCard}>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 12 }}>📝 กิจกรรมที่บันทึก</Text>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
+            <View style={{ alignItems: "center", minWidth: 80 }}>
+              <Text style={{ fontSize: 28 }}>
+                {done.activityId === "cardio" ? "🏃" : done.activityId === "weights" ? "🏋️" : done.activityId === "walk" ? "🚶" : "🧘"}
+              </Text>
+              <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginTop: 4 }}>{done.activity}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 3 }}>
+                <Text style={{ fontSize: 12, color: colors.textDim }}>⏱️ ระยะเวลา</Text>
+                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text }}>{done.duration || 0} นาที</Text>
+              </View>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 3, borderTopWidth: 1, borderTopColor: colors.divider }}>
+                <Text style={{ fontSize: 12, color: colors.textDim }}>📏 ระยะทาง</Text>
+                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text }}>{done.distance || 0} กม.</Text>
+              </View>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 3, borderTopWidth: 1, borderTopColor: colors.divider }}>
+                <Text style={{ fontSize: 12, color: colors.textDim }}>🔥 แคลอรี</Text>
+                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.gold }}>{done.calories || 0} kcal</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
         <View style={s.grid2}>
           <View style={s.cheatCard}>
             <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>🛡️ ระบบป้องกันการโกง</Text>
@@ -133,19 +173,44 @@ export default function DesktopUpload() {
           </View>
           <View style={s.uploadHistoryCard}>
             <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>📸 ประวัติล่าสุด</Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
               {recent.length === 0 ? <Text style={{ fontSize: 13, color: colors.textDim }}>ยังไม่มีรูป</Text> :
                 recent.map((l, i) => (
-                  <View key={i}>
-                    {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: 60, height: 60, borderRadius: 8, borderWidth: 1, borderColor: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }} />
-                      : <View style={{ width: 60, height: 60, borderRadius: 8, backgroundColor: colors.card, alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
+                  <View key={i} style={{ width: "31%", aspectRatio: 1, borderRadius: 10, overflow: "hidden", borderWidth: 1.5, borderColor: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }}>
+                    {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: "100%", height: "100%" }} />
+                      : <View style={{ width: "100%", height: "100%", backgroundColor: colors.card, alignItems: "center", justifyContent: "center" }}><Text style={{ fontSize: 24 }}>🏃</Text></View>}
                   </View>
                 ))}
             </View>
           </View>
         </View>
+
+        {/* Quest Progress */}
+        {(doneQuests.length > 0 || inProgressQuests.length > 0) && (
+          <View style={[s.glassCard, { marginTop: 16 }]}>
+            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>📅 ความคืบหน้าเควส</Text>
+            {doneQuests.map(([id, q]) => (
+              <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 4 }}>
+                <Text style={{ fontSize: 16 }}>✅</Text>
+                <Text style={{ fontSize: 13, color: colors.success, fontWeight: "600", flex: 1 }}>{q.name}</Text>
+                <Text style={{ fontSize: 12, color: colors.gold, fontWeight: "600" }}>🎁 รับได้!</Text>
+              </View>
+            ))}
+            {inProgressQuests.map(([id, q]) => {
+              const p = qp[id] || 0;
+              return (
+                <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 4 }}>
+                  <Text style={{ fontSize: 16, opacity: 0.5 }}>📅</Text>
+                  <Text style={{ fontSize: 13, color: colors.textDim, flex: 1 }}>{q.name}</Text>
+                  <Text style={{ fontSize: 12, color: colors.primary, fontWeight: "600" }}>{p}/{q.target}</Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
         <TouchableOpacity onPress={() => { setDone(null); setUri(null); setStep(0); }}
-          style={{ marginTop: 24, padding: 14, backgroundColor: colors.primary, borderRadius: 9999, alignItems: "center", maxWidth: 300, alignSelf: "center" }}>
+          style={{ marginTop: 20, padding: 14, backgroundColor: colors.primary, borderRadius: 9999, alignItems: "center", maxWidth: 300, alignSelf: "center" }}>
           <Text style={{ fontWeight: "600", color: "#fff" }}>📸 บันทึกอีกครั้ง</Text>
         </TouchableOpacity>
         <View style={{ height: 40 }} />
@@ -256,4 +321,5 @@ const s = StyleSheet.create({
   grid2: { flexDirection: "row", gap: 16, marginBottom: 20 },
   cheatCard: { flex: 1, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, borderRadius: 14, padding: 16 },
   uploadHistoryCard: { flex: 1, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, borderRadius: 14, padding: 16 },
+  glassCard: { backgroundColor: "rgba(26,26,46,0.75)", borderWidth: 1, borderColor: "rgba(255,255,255,0.06)", borderRadius: 18, padding: 20 },
 });

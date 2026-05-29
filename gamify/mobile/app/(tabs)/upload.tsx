@@ -45,7 +45,7 @@ const validateInputs = (dur: string, dist: string, cal: string): string | null =
 type PageState =
   | { type: "form" }
   | { type: "verifying" }
-  | { type: "result"; coins: number; score: number; risk: string; ok: boolean; msg: string };
+  | { type: "result"; coins: number; score: number; risk: string; ok: boolean; msg: string; activity?: string; activityId?: string; duration?: number; distance?: number; calories?: number };
 
 export default function UploadScreen() {
   const [act, setAct] = useState("cardio");
@@ -55,7 +55,7 @@ export default function UploadScreen() {
   const [cal, setCal] = useState("");
   const [page, setPage] = useState<PageState>({ type: "form" });
   const calUserEdited = React.useRef(false);
-  const { user, streak, addCoins, addWorkout, updateStreak, backendAvailable, setBackend, workoutLog, profile } = useStore();
+  const { user, streak, addCoins, addWorkout, updateStreak, backendAvailable, setBackend, workoutLog, profile, questProgress } = useStore();
 
   // Auto-calculate calories when duration/distance/activity changes
   useEffect(() => {
@@ -122,8 +122,8 @@ export default function UploadScreen() {
         const res = await uploadActivity(fd);
         if (res.data.status === "approved") {
           const c = res.data.totalCoins || total; const fs = res.data.antiCheat?.fraudScore || 0; const rl = res.data.antiCheat?.riskLevel || "low";
-          addCoins(c); addWorkout({ date: new Date().toISOString(), activity: a?.name || "", duration: parseDuration(dur), distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: c, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore: fs, riskLevel: rl }); updateStreak(streak + 1);
-          setPage({ type: "result", coins: c, score: fs, risk: rl, ok: true, msg: `✅ AI ตรวจสอบผ่าน!` });
+          addCoins(c); addWorkout({ date: new Date().toISOString(), activity: a?.name || "", activityId: act, duration: parseDuration(dur), distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: c, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore: fs, riskLevel: rl }); updateStreak(streak + 1);
+          setPage({ type: "result", coins: c, score: fs, risk: rl, ok: true, msg: `✅ AI ตรวจสอบผ่าน!`, activity: a?.name || "", activityId: act, duration: parseDuration(dur), distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0 });
         } else {
           setPage({ type: "result", coins: 0, score: 0, risk: "high", ok: false, msg: res.data.messages?.join("\n") || "❌ ตรวจสอบไม่ผ่าน" });
         }
@@ -134,8 +134,8 @@ export default function UploadScreen() {
         if (!passed) {
           setPage({ type: "result", coins: 0, score: fs, risk: rl, ok: false, msg: `🚨 ตรวจพบความผิดปกติ\nคะแนน: ${fs}/100\nสาเหตุ: ${flags.map((f: any) => f.code).join(", ")}` });
         } else {
-          addCoins(total); addWorkout({ date: new Date().toISOString(), activity: a?.name || "", duration: parseDuration(dur), distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: total, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore: fs, riskLevel: rl }); updateStreak(streak + 1);
-          setPage({ type: "result", coins: total, score: fs, risk: rl, ok: true, msg: `✅ Local verification passed!` });
+          addCoins(total); addWorkout({ date: new Date().toISOString(), activity: a?.name || "", activityId: act, duration: parseDuration(dur), distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0, coins: total, bonus: bonus > 0 ? `+${bonus}` : null, verified: true, imageUri: uri, fraudScore: fs, riskLevel: rl }); updateStreak(streak + 1);
+          setPage({ type: "result", coins: total, score: fs, risk: rl, ok: true, msg: `✅ Local verification passed!`, activity: a?.name || "", activityId: act, duration: parseDuration(dur), distance: parseFloat(dist) || 0, calories: parseInt(cal) || 0 });
         }
       }
     } catch (e: any) {
@@ -161,7 +161,60 @@ export default function UploadScreen() {
             <Text style={{ fontSize: 13, color: colors.textDim, marginTop: 6, textAlign: "center" }}>{page.msg}</Text>
           </View>
 
-          {page.ok && (
+          {page.ok && (<>
+            {/* Activity Info */}
+            {page.activity && (
+              <View style={ss.cheatBox}>
+                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 6 }}>📝 กิจกรรมที่บันทึก</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                  <Text style={{ fontSize: 28 }}>
+                    {page.activityId === "cardio" ? "🏃" : page.activityId === "weights" ? "🏋️" : page.activityId === "walk" ? "🚶" : "🧘"}
+                  </Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text }}>{page.activity}</Text>
+                    <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
+                      <Text style={{ fontSize: 10, color: colors.textDim }}>⏱️ {page.duration || 0}น</Text>
+                      <Text style={{ fontSize: 10, color: colors.textDim }}>📏 {page.distance || 0}กม</Text>
+                      <Text style={{ fontSize: 10, color: colors.gold }}>🔥 {page.calories || 0}kcal</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* Quest Progress */}
+            {(() => {
+              const DQ_MAP: Record<string, { name: string; target: number }> = {
+                d_cardio_20: { name: "🏃‍♂️ คาร์ดิโอ 20 นาที", target: 1 },
+                d_stretch: { name: "🧘 ยืดกล้ามเนื้อ 10 นาที", target: 1 },
+                d_steps_5k: { name: "🚶 เดิน 5,000 ก้าว", target: 1 },
+              };
+              const doneQ = Object.entries(DQ_MAP).filter(([id, q]) => (questProgress[id] || 0) >= q.target);
+              const progQ = Object.entries(DQ_MAP).filter(([id, q]) => {
+                const p = questProgress[id] || 0; return p > 0 && p < q.target;
+              });
+              if (doneQ.length === 0 && progQ.length === 0) return null;
+              return (
+                <View style={ss.cheatBox}>
+                  <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 6 }}>📅 ความคืบหน้าเควส</Text>
+                  {doneQ.map(([id, q]) => (
+                    <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 2 }}>
+                      <Text style={{ fontSize: 12 }}>✅</Text>
+                      <Text style={{ fontSize: 11, color: colors.success, fontWeight: "600", flex: 1 }}>{q.name}</Text>
+                      <Text style={{ fontSize: 10, color: colors.gold }}>🎁 รับได้!</Text>
+                    </View>
+                  ))}
+                  {progQ.map(([id, q]) => (
+                    <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 2 }}>
+                      <Text style={{ fontSize: 12, opacity: 0.5 }}>📅</Text>
+                      <Text style={{ fontSize: 11, color: colors.textDim, flex: 1 }}>{q.name}</Text>
+                      <Text style={{ fontSize: 10, color: colors.primary }}>{questProgress[id] || 0}/{q.target}</Text>
+                    </View>
+                  ))}
+                </View>
+              );
+            })()}
+
             <View style={ss.cheatBox}>
               <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 6 }}>🛡️ ระบบป้องกันการโกง</Text>
               {[{ l: "Fraud Score", v: `${page.score}/100`, c: page.score > 20 ? colors.error : colors.success },
@@ -174,15 +227,15 @@ export default function UploadScreen() {
                 </View>
               ))}
             </View>
-          )}
+          </>)}
 
           <Text style={{ fontSize: 14, fontWeight: "700", color: colors.text, marginTop: 14, marginBottom: 8 }}>📸 ประวัติล่าสุด</Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
             {recent.length === 0 ? <Text style={{ fontSize: 12, color: colors.textDim }}>ยังไม่มีรูป</Text> :
               recent.map((l, i) => (
-                <View key={i} style={{ width: "30%", marginBottom: 6 }}>
-                  {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: "100%", height: 70, borderRadius: 8, borderWidth: 1, borderColor: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }} /> :
-                    <View style={{ width: "100%", height: 70, borderRadius: 8, backgroundColor: colors.card, alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
+                <View key={i} style={{ width: "30%", aspectRatio: 1, borderRadius: 8, overflow: "hidden", borderWidth: 1, borderColor: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }}>
+                  {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: "100%", height: "100%" }} /> :
+                    <View style={{ width: "100%", height: "100%", backgroundColor: colors.card, alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
                 </View>
               ))}
           </View>
