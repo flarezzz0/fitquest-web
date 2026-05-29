@@ -31,7 +31,7 @@ export default function QuestsScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScrollView style={{ paddingHorizontal: 14 }}>
+      <View style={{ paddingHorizontal: 14 }}>
         <Text style={{ fontSize: 18, fontWeight: "700", color: colors.text, marginTop: 8, marginBottom: 10 }}>📅 เควส</Text>
         <View style={{ flexDirection: "row", gap: 6, marginBottom: 12 }}>
           {["daily", "weekly"].map((t) => (
@@ -41,6 +41,13 @@ export default function QuestsScreen() {
             </TouchableOpacity>
           ))}
         </View>
+      </View>
+      <ScrollView
+        horizontal={true}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 14, gap: 10 }}
+        style={{ flex: 1 }}
+      >
         {qs.map((q) => {
           const p = q.id === "d_exercise" ? todayCount : (questProgress[q.id] || 0);
           const c = questClaimed.includes(q.id);
@@ -48,27 +55,31 @@ export default function QuestsScreen() {
           const ready = p >= q.target && !c;
           return (
             <View key={q.id} style={ss.qc}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text }}>{q.name}</Text>
-                <Text style={{ fontSize: 12, fontWeight: "700", color: colors.gold }}>+{q.reward} 🪙</Text>
+              {/* Icon + Name */}
+              <Text style={{ fontSize: 20, marginBottom: 2 }}>{q.name.split(" ")[0]}</Text>
+              <Text style={{ fontSize: 10, fontWeight: "600", color: colors.text, marginBottom: 4, lineHeight: 13 }} numberOfLines={2}>
+                {q.name.replace(/^[^\s]+\s/, "")}
+              </Text>
+              {/* Reward */}
+              <Text style={{ fontSize: 10, fontWeight: "700", color: colors.gold, marginBottom: 4 }}>+{q.reward} 🪙</Text>
+              {/* Progress bar */}
+              <View style={{ width: "100%", height: 4, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden", marginBottom: 4 }}>
+                <View style={{ height: "100%", backgroundColor: colors.primary, borderRadius: 2, width: `${pct}%` }} />
               </View>
-              <View style={{ width: "100%", height: 6, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden", marginBottom: 6 }}>
-                <View style={{ height: "100%", backgroundColor: colors.primary, borderRadius: 3, width: `${pct}%` }} />
-              </View>
+              {/* Progress text + button */}
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <Text style={{ fontSize: 11, color: colors.textDim }}>{p}/{q.target}</Text>
+                <Text style={{ fontSize: 9, color: colors.textDim }}>{p}/{q.target}{q.unit ? ` ${q.unit}` : ""}</Text>
                 {c ? (
-                  <Text style={ss.cb}>✅ รับแล้ว</Text>
+                  <Text style={ss.cb}>✅</Text>
                 ) : (
                   <TouchableOpacity disabled={!ready} style={[ss.cb, ready && ss.cr]} onPress={() => claim(q.id, q.reward)}>
-                    <Text style={{ fontSize: 11, fontWeight: ready ? "700" : "500", color: ready ? "#111" : colors.textMuted }}>{ready ? "🎁 รับรางวัล" : "🔒 กำลังทำ"}</Text>
+                    <Text style={{ fontSize: 8, fontWeight: ready ? "700" : "500", color: ready ? "#111" : colors.textMuted }}>{ready ? "🎁" : "🔒"}</Text>
                   </TouchableOpacity>
                 )}
               </View>
             </View>
           );
         })}
-        <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -77,7 +88,7 @@ const ss = StyleSheet.create({
   t: { flex: 1, padding: 10, borderRadius: 8, alignItems: "center", backgroundColor: "rgba(255,255,255,0.04)", borderWidth: 1, borderColor: colors.cardBorder },
   tA: { backgroundColor: colors.primary, borderColor: colors.primary },
   tt: { fontSize: 12, fontWeight: "600", color: colors.text },
-  qc: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, borderRadius: 14, padding: 14, marginBottom: 8 },
-  cb: { fontSize: 11, fontWeight: "700", backgroundColor: "rgba(255,255,255,0.06)", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 6, overflow: "hidden" },
-  cr: { backgroundColor: colors.success, color: "#111" },
+  qc: { width: 145, height: 130, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, borderRadius: 14, padding: 10, justifyContent: "space-between" },
+  cb: { width: 24, height: 24, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.06)" },
+  cr: { backgroundColor: colors.success },
 });
