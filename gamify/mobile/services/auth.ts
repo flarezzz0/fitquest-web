@@ -6,7 +6,9 @@ const WEB_CLIENT_ID = "97346646198-q5ac252sm37cjsquugbdav0bbpb2u13b.apps.googleu
 // หลังจาก redirect → app reload → URL มี #access_token=...
 // store/useStore.ts hydrate() จะอ่าน token นี้
 const redirectUri = Platform.OS === "web"
-  ? "http://localhost:8081"
+  ? (typeof window !== "undefined"
+      ? window.location.origin
+      : "https://fitquest-web-two.vercel.app/")
   : "https://auth.expo.io/@flarezzz/fitquest";
 
 export function signInWithGoogle(): Promise<{
