@@ -104,12 +104,47 @@ export const useStore = create<AppState>((set, get) => ({
     return true;
   },
   addWorkout: (log) =>
-    set((s) => ({
-      workoutLog: [log, ...s.workoutLog].slice(0, 100),
-      totalWorkouts: s.totalWorkouts + 1,
-      todayCount: s.todayCount + 1,
-      weekCount: s.weekCount + 1,
-    })),
+    set((s) => {
+      const qp = { ...s.questProgress };
+      // ✅ d_cardio_20: คาร์ดิโอ 20 นาที
+      if (log.activityId === "cardio" && (log.duration || 0) >= 20) {
+        qp.d_cardio_20 = (qp.d_cardio_20 || 0) + 1;
+      }
+      // ✅ d_stretch: ยืดกล้ามเนื้อ 10 นาที
+      if (log.activityId === "yoga" && (log.duration || 0) >= 10) {
+        qp.d_stretch = (qp.d_stretch || 0) + 1;
+      }
+      // ✅ d_steps_5k: เดิน (อาศัยระยะทาง)
+      if (log.activityId === "walk" && (log.distance || 0) >= 5) {
+        qp.d_steps_5k = (qp.d_steps_5k || 0) + 1;
+      }
+
+      // Weekly quests
+      if (log.activityId === "cardio") {
+        qp.w_cardio_3 = (qp.w_cardio_3 || 0) + 1;
+      }
+      // w_cal_2000: สะสมแคลอรี
+      if (log.calories) {
+        qp.w_cal_2000 = (qp.w_cal_2000 || 0) + log.calories;
+      }
+      // w_all_types: จำนวนประเภทกิจกรรมที่ไม่ซ้ำ
+      const allIds = [log.activityId || log.activity, ...s.workoutLog.map((l) => l.activityId || l.activity)];
+      const unique = new Set(allIds);
+      qp.w_all_types = unique.size;
+
+      // w_gym_4: จำนวนวันที่ออกกำลังกายไม่ซ้ำกัน
+      const allDates = [log.date.slice(0, 10), ...s.workoutLog.map((l) => l.date.slice(0, 10))];
+      const uniqueDays = new Set(allDates);
+      qp.w_gym_4 = uniqueDays.size;
+
+      return {
+        workoutLog: [log, ...s.workoutLog].slice(0, 100),
+        totalWorkouts: s.totalWorkouts + 1,
+        todayCount: s.todayCount + 1,
+        weekCount: s.weekCount + 1,
+        questProgress: qp,
+      };
+    }),
   updateStreak: (s) => set((st) => ({ streak: s, longestStreak: Math.max(st.longestStreak, s) })),
   claimQuest: (id) => {
     if (get().questClaimed.includes(id)) return false;

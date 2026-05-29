@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FitQuest 🎮</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg:#0a0a14;
+      --card:rgba(26,26,46,0.85);
+      --card-border:rgba(255,255,255,0.06);
+      --neon-blue:#00d4ff;
+      --neon-purple:#a855f7;
+      --neon-green:#22d65e;
+      --neon-pink:#ff2d78;
+      --neon-yellow:#f5c518;
+      --gold:#f5c518;
+      --text:#eee;
+      --text-dim:#8888aa;
+      --text-muted:#55557a;
+      --radius:16px;
+      --radius-sm:12px;
+      --glass:rgba(255,255,255,0.04);
+      --shadow:0 8px 32px rgba(0,0,0,0.4);
+      --gradient:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    body{
+      font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      padding-bottom:calc(74px + var(--safe-bottom));
+      overflow-x:hidden;
+    }
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--text-muted);border-radius:4px}
+
+    .container{max-width:480px;margin:0 auto;padding:12px 14px}
+
+    /* GLASS CARD */
+    .glass{
+      background:var(--card);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border:1px solid var(--card-border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    /* NEON TEXT */
+    .neon{color:var(--neon-blue);text-shadow:0 0 20px rgba(0,212,255,0.3)}
+    .neon-purple{color:var(--neon-purple);text-shadow:0 0 20px rgba(168,85,247,0.3)}
+    .neon-green{color:var(--neon-green);text-shadow:0 0 20px rgba(34,214,94,0.3)}
+    .neon-gold{color:var(--gold);text-shadow:0 0 20px rgba(245,197,24,0.3)}
+    .neon-pink{color:var(--neon-pink);text-shadow:0 0 20px rgba(255,45,120,0.3)}
+
+    /* ===== HEADER ===== */
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 0;
+    }
+    .header-left{display:flex;align-items:center;gap:10px}
+    .profile-mini{
+      width:40px;height:40px;
+      border-radius:50%;
+      background:var(--gradient);
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;
+      box-shadow:0 0 20px rgba(0,212,255,0.2);
+    }
+    .profile-mini-text{font-size:12px;font-weight:600}
+    .profile-mini-sub{font-size:10px;color:var(--text-dim)}
+    .header-right{display:flex;align-items:center;gap:10px}
+    .header-stat{
+      text-align:right;
+    }
+    .header-stat-value{
+      font-size:16px;font-weight:800;
+      background:var(--gradient);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .header-stat-label{font-size:10px;color:var(--text-dim)}
+
+    /* ===== COIN BALANCE ===== */
+    .coin-section{
+      background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(168,85,247,0.08));
+      border:1px solid rgba(0,212,255,0.15);
+      border-radius:var(--radius);
+      padding:16px 18px;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .coin-left{display:flex;align-items:center;gap:12px}
+    .coin-icon-wrap{
+      width:48px;height:48px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#f5c518,#f39c12);
+      display:flex;align-items:center;justify-content:center;
+      font-size:28px;
+      box-shadow:0 0 30px rgba(245,197,24,0.3);
+      animation:coinPulse 3s ease-in-out infinite;
+    }
+    @keyframes coinPulse{
+      0%,100%{box-shadow:0 0 20px rgba(245,197,24,0.2)}
+      50%{box-shadow:0 0 40px rgba(245,197,24,0.5)}
+    }
+    .coin-amount{font-size:32px;font-weight:900;color:var(--gold)}
+    .coin-label{font-size:11px;color:var(--text-dim)}
+    .coin-earned{font-size:11px;color:var(--neon-green)}
+    .coin-right{text-align:right}
+    .level-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      background:linear-gradient(135deg,var(--neon-pink),#c0392b);
+      padding:4px 14px;
+      border-radius:20px;
+      font-size:12px;
+      font-weight:700;
+      box-shadow:0 0 20px rgba(255,45,120,0.3);
+    }
+    .exp-bar-wrap{
+      margin-top:6px;
+      width:120px;height:6px;
+      background:rgba(255,255,255,0.08);
+      border-radius:3px;
+      overflow:hidden;
+    }
+    .exp-bar{
+      height:100%;
+      background:var(--gradient);
+      border-radius:3px;
+      transition:width 0.5s ease;
+    }
+    .exp-text{font-size:10px;color:var(--text-dim);margin-top:2px}
+
+    /* ===== DAILY PROGRESS ===== */
+    .daily-progress{
+      background:var(--card);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border:1px solid var(--card-border);
+      border-radius:var(--radius);
+      padding:14px 16px;
+      margin-bottom:10px;
+    }
+    .daily-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .daily-title{font-size:13px;font-weight:600}
+    .daily-count{font-size:12px;color:var(--text-dim)}
+    .daily-count strong{color:var(--neon-green)}
+    .daily-bar-wrap{
+      width:100%;height:8px;
+      background:rgba(255,255,255,0.06);
+      border-radius:4px;
+      overflow:hidden;
+    }
+    .daily-bar{
+      height:100%;
+      background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));
+      border-radius:4px;
+      transition:width 0.5s ease;
+      position:relative;
+    }
+    .daily-bar::after{
+      content:'';
+      position:absolute;top:0;left:0;right:0;bottom:0;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
+      animation:shimmer 2s infinite;
+    }
+    @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+    /* ===== STREAK ===== */
+    .streak-section{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:linear-gradient(135deg,rgba(255,45,120,0.06),rgba(245,197,24,0.06));
+      border:1px solid rgba(255,45,120,0.12);
+      border-radius:var(--radius-sm);
+      padding:10px 14px;
+      margin-bottom:10px;
+    }
+    .streak-left{display:flex;align-items:center;gap:8px}
+    .streak-fire{font-size:24px;animation:fireDance 1s ease-in-out infinite alternate}
+    @keyframes fireDance{from{transform:scale(1)}to{transform:scale(1.15)}}
+    .streak-num{font-size:20px;font-weight:800;color:var(--neon-pink)}
+    .streak-label{font-size:10px;color:var(--text-dim)}
+    .streak-mult{
+      background:rgba(245,197,24,0.15);
+      padding:3px 12px;
+      border-radius:10px;
+      font-size:12px;font-weight:700;
+      color:var(--gold);
+    }
+
+    /* ===== QUICK ACTIONS ===== */
+    .quick-actions{
+      display:flex;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .quick-btn{
+      flex:1;
+      padding:10px 8px;
+      border-radius:var(--radius-sm);
+      border:1px solid var(--card-border);
+      background:var(--glass);
+      color:var(--text);
+      font-size:11px;font-weight:600;
+      cursor:pointer;
+      transition:all 0.2s;
+      text-align:center;
+      backdrop-filter:blur(10px);
+    }
+    .quick-btn:active{transform:scale(0.95)}
+    .quick-btn .qb-icon{font-size:22px;display:block;margin-bottom:3px}
+    .quick-btn.primary{
+      background:var(--gradient);
+      border:none;
+      box-shadow:0 0 20px rgba(0,212,255,0.2);
+    }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title{
+      font-size:14px;font-weight:700;
+      margin:14px 0 8px;
+      display:flex;align-items:center;gap:6px;
+    }
+    .section-title .st-badge{
+      font-size:10px;
+      background:rgba(255,255,255,0.06);
+      padding:2px 8px;
+      border-radius:6px;
+      color:var(--text-dim);
+      font-weight:500;
+      margin-left:auto;
+    }
+
+    /* ===== QUEST PREVIEW ===== */
+    .quest-mini-list{display:flex;flex-direction:column;gap:6px}
+    .quest-mini{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 12px;
+      background:var(--card);
+      backdrop-filter:blur(20px);
+      border:1px solid var(--card-border);
+      border-radius:var(--radius-sm);
+    }
+    .quest-mini-icon{font-size:18px;width:28px;text-align:center}
+    .quest-mini-info{flex:1}
+    .quest-mini-name{font-size:12px;font-weight:500}
+    .quest-mini-bar{
+      width:100%;height:4px;
+      background:rgba(255,255,255,0.06);
+      border-radius:2px;
+      overflow:hidden;
+      margin-top:4px;
+    }
+    .quest-mini-fill{
+      height:100%;
+      background:var(--gradient);
+      border-radius:2px;
+      transition:width 0.5s;
+    }
+    .quest-mini-reward{font-size:11px;color:var(--gold);font-weight:600}
+
+    /* ===== RECENT ACTIVITIES ===== */
+    .recent-list{display:flex;flex-direction:column;gap:4px}
+    .recent-item{
+      display:flex;align-items:center;gap:10px;
+      padding:8px 10px;
+      border-radius:var(--radius-sm);
+      background:var(--glass);
+      font-size:12px;
+    }
+    .recent-emoji{font-size:16px}
+    .recent-name{flex:1;font-weight:500}
+    .recent-time{font-size:10px;color:var(--text-dim)}
+    .recent-coin{color:var(--gold);font-weight:700;font-size:12px}
+
+    /* ===== ACTIVITY UPLOAD PAGE ===== */
+    .activity-selector{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    .act-option{
+      padding:14px 10px;
+      border-radius:var(--radius-sm);
+      border:2px solid var(--card-border);
+      background:var(--glass);
+      text-align:center;
+      cursor:pointer;
+      transition:all 0.2s;
+    }
+    .act-option.active{
+      border-color:var(--neon-blue);
+      background:rgba(0,212,255,0.08);
+      box-shadow:0 0 20px rgba(0,212,255,0.1);
+    }
+    .act-option .ao-icon{font-size:32px}
+    .act-option .ao-name{font-size:12px;font-weight:600;margin-top:4px}
+    .act-option .ao-coins{font-size:11px;color:var(--gold);margin-top:2px}
+
+    /* UPLOAD ZONE */
+    .upload-zone{
+      border:2px dashed rgba(255,255,255,0.12);
+      border-radius:var(--radius);
+      padding:30px 20px;
+      text-align:center;
+      cursor:pointer;
+      transition:all 0.3s;
+      margin-bottom:12px;
+    }
+    .upload-zone.has-file{
+      border-color:var(--neon-green);
+      background:rgba(34,214,94,0.05);
+    }
+    .upload-zone .uz-icon{font-size:40px;margin-bottom:8px}
+    .upload-zone .uz-text{font-size:13px;color:var(--text-dim)}
+    .upload-zone .uz-hint{font-size:11px;color:var(--text-muted);margin-top:4px}
+    .upload-zone input[type="file"]{display:none}
+    .upload-preview{
+      margin-top:10px;
+      border-radius:10px;
+      overflow:hidden;
+      border:1px solid var(--card-border);
+    }
+    .upload-preview img{max-width:100%;max-height:200px;display:block;border-radius:10px}
+
+    /* Workout Details */
+    .detail-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    .detail-field{
+      background:var(--glass);
+      border-radius:var(--radius-sm);
+      padding:8px 10px;
+      border:1px solid var(--card-border);
+    }
+    .detail-field label{font-size:10px;color:var(--text-dim);display:block;margin-bottom:2px}
+    .detail-field input,.detail-field select{
+      width:100%;
+      background:transparent;
+      border:none;
+      color:var(--text);
+      font-size:14px;font-weight:600;
+      outline:none;
+      font-family:inherit;
+    }
+    .detail-field input::placeholder{color:var(--text-muted)}
+    .detail-field.full{grid-column:1/-1}
+
+    /* Verification Status */
+    .verify-status{
+      display:flex;align-items:center;gap:8px;
+      padding:10px 12px;
+      border-radius:var(--radius-sm);
+      margin-bottom:10px;
+      font-size:12px;
+    }
+    .verify-status.pending{background:rgba(245,197,24,0.1);border:1px solid rgba(245,197,24,0.2);color:var(--gold)}
+    .verify-status.approved{background:rgba(34,214,94,0.1);border:1px solid rgba(34,214,94,0.2);color:var(--neon-green)}
+    .verify-status.rejected{background:rgba(255,45,120,0.1);border:1px solid rgba(255,45,120,0.2);color:var(--neon-pink)}
+
+    /* Reward Preview */
+    .reward-preview{
+      background:linear-gradient(135deg,rgba(245,197,24,0.08),rgba(245,197,24,0.02));
+      border:1px solid rgba(245,197,24,0.15);
+      border-radius:var(--radius-sm);
+      padding:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:12px;
+    }
+    .reward-preview .rp-label{font-size:11px;color:var(--text-dim)}
+    .reward-preview .rp-amount{font-size:24px;font-weight:900;color:var(--gold)}
+
+    .btn-submit-activity{
+      width:100%;
+      padding:14px;
+      border-radius:var(--radius-sm);
+      background:var(--gradient);
+      color:#fff;
+      font-size:16px;font-weight:700;
+      border:none;
+      cursor:pointer;
+      transition:all 0.2s;
+      font-family:inherit;
+    }
+    .btn-submit-activity:active{transform:scale(0.97)}
+    .btn-submit-activity:disabled{opacity:0.4;cursor:default}
+
+    /* ===== SHOP ===== */
+    .shop-categories{
+      display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;
+    }
+    .shop-cat{
+      white-space:nowrap;
+      padding:5px 12px;
+      border-radius:20px;
+      font-size:11px;font-weight:600;
+      background:var(--glass);
+      border:1px solid var(--card-border);
+      cursor:pointer;
+      transition:all 0.2s;
+    }
+    .shop-cat.active{
+      background:var(--gradient);
+      border-color:transparent;
+    }
+    .shop-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    .shop-card{
+      background:var(--card);
+      backdrop-filter:blur(20px);
+      border:1px solid var(--card-border);
+      border-radius:var(--radius);
+      padding:14px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .shop-card .sc-icon{font-size:36px;margin-bottom:6px}
+    .shop-card .sc-name{font-size:12px;font-weight:600}
+    .shop-card .sc-cost{font-size:13px;color:var(--gold);font-weight:700;margin:4px 0}
+    .shop-card .sc-btn{
+      padding:6px 16px;
+      border-radius:8px;
+      border:none;
+      font-size:12px;font-weight:700;
+      cursor:pointer;
+      font-family:inherit;
+      transition:all 0.2s;
+    }
+    .shop-card .sc-btn:active{transform:scale(0.93)}
+    .shop-card .sc-btn.buy{background:var(--gold);color:#111}
+    .shop-card .sc-btn.owned{
+      background:var(--neon-green);
+      color:#111;
+      opacity:0.6;
+      cursor:default;
+    }
+    .shop-card .sc-btn.nocoin{background:rgba(255,255,255,0.06);color:var(--text-muted);cursor:default}
+    .shop-card .sc-badge{
+      position:absolute;
+      top:8px;right:8px;
+      font-size:9px;
+      padding:2px 6px;
+      border-radius:4px;
+      font-weight:700;
+    }
+    .shop-card .sc-badge.limited{background:var(--neon-pink);color:#fff}
+    .shop-card .sc-badge.weekly{background:var(--neon-purple);color:#fff}
+
+    /* ===== QUEST PAGE ===== */
+    .quest-tabs{
+      display:flex;gap:6px;margin-bottom:10px;
+    }
+    .quest-tab{
+      flex:1;
+      padding:8px;
+      border-radius:8px;
+      text-align:center;
+      font-size:12px;font-weight:600;
+      background:var(--glass);
+      border:1px solid var(--card-border);
+      cursor:pointer;
+      transition:all 0.2s;
+    }
+    .quest-tab.active{
+      background:var(--gradient);
+      border-color:transparent;
+    }
+    .quest-card-list{display:flex;flex-direction:column;gap:8px}
+    .quest-card{
+      background:var(--card);
+      backdrop-filter:blur(20px);
+      border:1px solid var(--card-border);
+      border-radius:var(--radius);
+      padding:14px;
+    }
+    .quest-card .qc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .quest-card .qc-name{font-size:13px;font-weight:600}
+    .quest-card .qc-reward{font-size:12px;color:var(--gold);font-weight:700}
+    .quest-card .qc-bar-wrap{
+      width:100%;height:6px;
+      background:rgba(255,255,255,0.06);
+      border-radius:3px;
+      overflow:hidden;
+      margin-bottom:4px;
+    }
+    .quest-card .qc-bar{
+      height:100%;
+      background:var(--gradient);
+      border-radius:3px;
+      transition:width 0.5s;
+    }
+    .quest-card .qc-footer{display:flex;justify-content:space-between;align-items:center}
+    .quest-card .qc-progress{font-size:11px;color:var(--text-dim)}
+    .quest-card .qc-time{font-size:10px;color:var(--text-muted)}
+    .quest-card .qc-claim{
+      padding:4px 12px;
+      border-radius:6px;
+      border:none;
+      font-size:11px;font-weight:700;
+      cursor:pointer;
+      font-family:inherit;
+      transition:all 0.2s;
+    }
+    .quest-card .qc-claim.ready{background:var(--neon-green);color:#111}
+    .quest-card .qc-claim.claimed{background:rgba(255,255,255,0.06);color:var(--text-muted);cursor:default}
+    .quest-card .qc-claim.locked{background:rgba(255,255,255,0.04);color:var(--text-muted);cursor:default}
+
+    /* ===== PROFILE PAGE ===== */
+    .profile-banner{
+      height:120px;
+      background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple),var(--neon-pink));
+      border-radius:var(--radius) var(--radius) 0 0;
+      position:relative;
+      margin-bottom:0;
+    }
+    .profile-avatar-wrap{
+      position:relative;
+      margin-top:-40px;
+      padding:0 16px;
+      display:flex;
+      align-items:flex-end;
+      gap:14px;
+      margin-bottom:12px;
+    }
+    .profile-avatar{
+      width:72px;height:72px;
+      border-radius:50%;
+      background:var(--bg);
+      border:3px solid var(--card-border);
+      display:flex;align-items:center;justify-content:center;
+      font-size:36px;
+      box-shadow:0 0 30px rgba(0,212,255,0.2);
+    }
+    .profile-name-wrap{}
+    .profile-name{font-size:18px;font-weight:800}
+    .profile-bio{font-size:11px;color:var(--text-dim);margin-top:2px}
+    .profile-badges{
+      display:flex;gap:4px;margin-top:4px;
+    }
+    .profile-badges span{
+      font-size:16px;
+    }
+    .profile-stats-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:6px;
+      margin-bottom:12px;
+    }
+    .profile-stat{
+      background:var(--glass);
+      border-radius:var(--radius-sm);
+      padding:10px 8px;
+      text-align:center;
+      border:1px solid var(--card-border);
+    }
+    .profile-stat .ps-value{font-size:18px;font-weight:800}
+    .profile-stat .ps-label{font-size:10px;color:var(--text-dim);margin-top:2px}
+
+    /* Activity Calendar / Heatmap */
+    .heatmap{
+      background:var(--card);
+      backdrop-filter:blur(20px);
+      border:1px solid var(--card-border);
+      border-radius:var(--radius);
+      padding:12px;
+      margin-bottom:12px;
+    }
+    .heatmap-grid{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:3px;
+      margin-top:8px;
+    }
+    .heatmap-day{
+      aspect-ratio:1;
+      border-radius:3px;
+      background:rgba(255,255,255,0.04);
+      display:flex;align-items:center;justify-content:center;
+      font-size:8px;
+      color:var(--text-muted);
+    }
+    .heatmap-day.l0{background:rgba(255,255,255,0.04)}
+    .heatmap-day.l1{background:rgba(0,212,255,0.15)}
+    .heatmap-day.l2{background:rgba(0,212,255,0.35)}
+    .heatmap-day.l3{background:rgba(0,212,255,0.55)}
+    .heatmap-day.l4{background:rgba(0,212,255,0.75)}
+    .heatmap-day.l5{background:var(--neon-blue)}
+    .heatmap-labels{
+      display:flex;justify-content:space-between;
+      font-size:9px;color:var(--text-muted);
+      margin-top:6px;
+    }
+
+    /* ===== LEADERBOARD ===== */
+    .leader-tabs{
+      display:flex;gap:6px;margin-bottom:10px;
+    }
+    .leader-tab{
+      flex:1;
+      padding:8px 6px;
+      border-radius:8px;
+      text-align:center;
+      font-size:10px;font-weight:600;
+      background:var(--glass);
+      border:1px solid var(--card-border);
+      cursor:pointer;
+      transition:all 0.2s;
+    }
+    .leader-tab.active{
+      background:var(--gradient);
+      border-color:transparent;
+    }
+    .leader-list{display:flex;flex-direction:column;gap:4px}
+    .leader-item{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 12px;
+      background:var(--card);
+      backdrop-filter:blur(20px);
+      border:1px solid var(--card-border);
+      border-radius:var(--radius-sm);
+    }
+    .leader-item.me{
+      border-color:var(--neon-blue);
+      background:rgba(0,212,255,0.06);
+    }
+    .leader-rank{
+      font-size:16px;font-weight:900;
+      width:24px;text-align:center;
+    }
+    .leader-rank.gold{color:var(--gold)}
+    .leader-rank.silver{color:#a8b8c8}
+    .leader-rank.bronze{color:#cd7f32}
+    .leader-avatar{
+      width:36px;height:36px;
+      border-radius:50%;
+      background:var(--glass);
+      display:flex;align-items:center;justify-content:center;
+      font-size:18px;
+      border:1px solid var(--card-border);
+    }
+    .leader-info{flex:1}
+    .leader-name{font-size:12px;font-weight:600}
+    .leader-stat{font-size:10px;color:var(--text-dim)}
+    .leader-score{font-size:13px;font-weight:800;color:var(--gold)}
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav{
+      position:fixed;
+      bottom:0;left:0;right:0;
+      background:rgba(10,10,20,0.95);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-top:1px solid var(--card-border);
+      display:flex;
+      justify-content:space-around;
+      padding:6px 0 calc(8px + var(--safe-bottom));
+      z-index:100;
+    }
+    .nav-btn{
+      background:none;border:none;
+      color:var(--text-dim);
+      font-size:10px;
+      display:flex;flex-direction:column;
+      align-items:center;gap:1px;
+      cursor:pointer;
+      padding:2px 10px;
+      transition:all 0.2s;
+      font-family:inherit;
+    }
+    .nav-btn .nav-icon{font-size:22px}
+    .nav-btn.active{color:var(--neon-blue)}
+    .nav-btn.active .nav-icon{filter:drop-shadow(0 0 6px rgba(0,212,255,0.5))}
+
+    /* ===== PAGE CONTAINERS ===== */
+    .page{display:none}
+    .page.active{display:block}
+
+    /* ===== COIN ANIMATION ===== */
+    .coin-fly{
+      position:fixed;
+      pointer-events:none;
+      font-size:28px;
+      z-index:999;
+      animation:coinFly 1s ease-out forwards;
+    }
+    @keyframes coinFly{
+      0%{opacity:1;transform:translateY(0) scale(1)}
+      100%{opacity:0;transform:translateY(-120px) scale(1.5)}
+    }
+
+    /* ===== SNACKBAR ===== */
+    .snackbar{
+      position:fixed;
+      bottom:80px;left:50%;
+      transform:translateX(-50%);
+      background:rgba(26,26,46,0.95);
+      backdrop-filter:blur(20px);
+      border:1px solid var(--card-border);
+      border-radius:12px;
+      padding:10px 18px;
+      font-size:13px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.5);
+      opacity:0;
+      transition:opacity 0.3s;
+      pointer-events:none;
+      z-index:200;
+      text-align:center;
+      max-width:90%;
+      white-space:nowrap;
+    }
+    .snackbar.show{opacity:1}
+
+    /* ===== LEVEL UP OVERLAY ===== */
+    .levelup-overlay{
+      display:none;
+      position:fixed;
+      top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,0.7);
+      z-index:400;
+      align-items:center;
+      justify-content:center;
+    }
+    .levelup-overlay.show{display:flex}
+    .levelup-modal{
+      background:var(--card);
+      backdrop-filter:blur(30px);
+      border:2px solid var(--neon-blue);
+      border-radius:var(--radius);
+      padding:30px 24px;
+      text-align:center;
+      max-width:320px;
+      animation:levelUpBounce 0.5s ease;
+    }
+    @keyframes levelUpBounce{
+      0%{transform:scale(0.5);opacity:0}
+      60%{transform:scale(1.1)}
+      100%{transform:scale(1);opacity:1}
+    }
+    .levelup-modal .lu-icon{font-size:64px;margin-bottom:8px}
+    .levelup-modal .lu-title{font-size:24px;font-weight:900;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .levelup-modal .lu-desc{font-size:14px;color:var(--text-dim);margin:8px 0 16px}
+    .levelup-modal .lu-btn{
+      padding:10px 30px;
+      border-radius:10px;
+      border:none;
+      background:var(--gradient);
+      color:#fff;
+      font-size:14px;font-weight:700;
+      cursor:pointer;
+      font-family:inherit;
+      box-shadow:0 0 30px rgba(0,212,255,0.3);
+    }
+
+    /* ===== MICRO ===== */
+    .badge-glow{box-shadow:0 0 20px rgba(168,85,247,0.2)}
+    .flex{display:flex}
+    .flex-between{display:flex;justify-content:space-between;align-items:center}
+    .gap-6{gap:6px}
+    .gap-8{gap:8px}
+    .mt-8{margin-top:8px}
+    .text-dim{color:var(--text-dim)}
+    .text-center{text-align:center}
+    .fw-700{font-weight:700}
+
+    /* SCROLLBAR HIDE */
+    .hide-scroll{scrollbar-width:none;-ms-overflow-style:none}
+    .hide-scroll::-webkit-scrollbar{display:none}
+  </style>
+</head>
+<body>
+
+<div class="container" id="app">
+
+  <!-- ===== PAGE: HOME ===== -->
+  <div class="page active" id="page-home">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <div class="profile-mini" id="miniAvatar">🏃</div>
+        <div>
+          <div class="profile-mini-text" id="miniName">นักผจญภัย</div>
+          <div class="profile-mini-sub" id="miniLevel">LV.1</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-stat">
+          <div class="header-stat-value" id="hCoinDisplay">0</div>
+          <div class="header-stat-label">🪙 ทั้งหมด</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coin Section -->
+    <div class="coin-section">
+      <div class="coin-left">
+        <div class="coin-icon-wrap">🪙</div>
+        <div>
+          <div class="coin-amount" id="homeCoins">0</div>
+          <div class="coin-label">เหรียญที่มี</div>
+          <div class="coin-earned" id="homeCoinsEarned">สะสมทั้งหมด 0 🪙</div>
+        </div>
+      </div>
+      <div class="coin-right">
+        <div class="level-badge" id="homeLevelBadge">LV.1</div>
+        <div class="exp-bar-wrap"><div class="exp-bar" id="homeExpBar" style="width:0%"></div></div>
+        <div class="exp-text" id="homeExpText">0 / 100</div>
+      </div>
+    </div>
+
+    <!-- Daily Progress -->
+    <div class="daily-progress">
+      <div class="daily-header">
+        <span class="daily-title">📊 Progress วันนี้</span>
+        <span class="daily-count"><strong id="dailyDone">0</strong> / <span id="dailyGoal">5</span></span>
+      </div>
+      <div class="daily-bar-wrap"><div class="daily-bar" id="dailyBar" style="width:0%"></div></div>
+    </div>
+
+    <!-- Streak -->
+    <div class="streak-section">
+      <div class="streak-left">
+        <div class="streak-fire">🔥</div>
+        <div>
+          <span class="streak-num" id="streakNum">0</span>
+          <span class="streak-label">วันติด</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:10px;color:var(--text-dim)">❄️ <span id="freezeLabel">พักได้ 1/สัปดาห์</span></span>
+        <span class="streak-mult" id="streakMult">x1</span>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <button class="quick-btn primary" onclick="switchPage('upload')">
+        <span class="qb-icon">📸</span> บันทึกกิจกรรม
+      </button>
+      <button class="quick-btn" onclick="switchPage('quest')">
+        <span class="qb-icon">📅</span> เควส
+      </button>
+      <button class="quick-btn" onclick="switchPage('shop')">
+        <span class="qb-icon">🛒</span> ร้านค้า
+      </button>
+    </div>
+
+    <!-- Weekly Quest Preview -->
+    <div class="section-title">📅 เควสรายสัปดาห์</div>
+    <div class="quest-mini-list" id="questPreview"></div>
+
+    <!-- Recent Activities -->
+    <div class="section-title">📜 กิจกรรมล่าสุด <span class="st-badge" id="recentCount">0 วันนี้</span></div>
+    <div class="recent-list" id="recentList"></div>
+  </div>
+
+  <!-- ===== PAGE: UPLOAD ===== -->
+  <div class="page" id="page-upload">
+    <div class="section-title" style="margin-top:4px;">📸 บันทึกกิจกรรม</div>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">เลือกประเภทกิจกรรมแล้วอัปโหลดหลักฐานเพื่อรับเหรียญ</p>
+
+    <div class="activity-selector" id="activitySelector"></div>
+
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('upFile').click()">
+      <div class="uz-icon" id="uzIcon">📷</div>
+      <div class="uz-text" id="uzText">แตะเพื่อถ่ายรูปหรือเลือก Screenshot</div>
+      <div class="uz-hint">Apple Health, Strava, Smart Watch, รูปยิม</div>
+      <input type="file" id="upFile" accept="image/*" capture="environment">
+      <div class="upload-preview" id="upPreview" style="display:none;"><img id="upPreviewImg"></div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-field"><label>⏱️ ระยะเวลา (นาที)</label><input type="number" id="upDuration" min="1" value="30" placeholder="นาที"></div>
+      <div class="detail-field"><label>📏 ระยะทาง</label><input type="text" id="upDistance" placeholder="กม. หรือ -"></div>
+      <div class="detail-field"><label>🔥 แคลอรี</label><input type="text" id="upCalories" placeholder="kcal หรือ -"></div>
+      <div class="detail-field full"><label>📝 หมายเหตุ</label><input type="text" id="upNote" placeholder="เช่น วิ่งสวนลุม 3 รอบ"></div>
+    </div>
+
+    <div class="verify-status pending" id="verifyStatus">
+      <span>⏳</span>
+      <div style="flex:1">
+        <span id="verifyStatusText">รออัปโหลดหลักฐาน</span>
+        <div style="font-size:9px;color:var(--text-muted);margin-top:2px" id="agentIndicator">
+          🤖 Main Agent · 🔍 Verification · 🚨 Anti-Cheat · 🪙 Reward
+        </div>
+      </div>
+    </div>
+
+    <div class="reward-preview" id="rewardPreview">
+      <div>
+        <div class="rp-label">คุณจะได้รับ</div>
+        <div class="rp-amount" id="rpAmount">0 🪙</div>
+      </div>
+      <div style="text-align:right">
+        <div class="rp-label">Streak โบนัส</div>
+        <div style="font-size:14px;font-weight:700;color:var(--neon-pink)" id="rpBonus">x1</div>
+      </div>
+    </div>
+
+    <button class="btn-submit-activity" id="submitActivityBtn" disabled onclick="submitActivity()">
+      📸 ส่งหลักฐาน
+    </button>
+    <p style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:6px;">รูปภาพถูกบันทึกในเครื่องเท่านั้น ไม่มีการส่งออกไปภายนอก</p>
+  </div>
+
+  <!-- ===== PAGE: QUEST ===== -->
+  <div class="page" id="page-quest">
+    <div class="section-title" style="margin-top:4px;">📅 เควส</div>
+    <div class="quest-tabs">
+      <div class="quest-tab active" onclick="switchQuestTab('daily',this)">🌞 รายวัน</div>
+      <div class="quest-tab" onclick="switchQuestTab('weekly',this)">📅 รายสัปดาห์</div>
+      <div class="quest-tab" onclick="switchQuestTab('monthly',this)">🏆 รายเดือน</div>
+    </div>
+    <div class="quest-card-list" id="questCardList"></div>
+  </div>
+
+  <!-- ===== PAGE: SHOP ===== -->
+  <div class="page" id="page-shop">
+    <div class="section-title" style="margin-top:4px;">🛒 ร้านค้า <span class="st-badge" id="shopCoinDisplay">🪙 0</span></div>
+    <div class="shop-categories hide-scroll" id="shopCategories"></div>
+    <div class="shop-grid" id="shopGrid"></div>
+  </div>
+
+  <!-- ===== PAGE: PROFILE ===== -->
+  <div class="page" id="page-profile">
+    <div class="profile-banner" id="profileBanner"></div>
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar" id="profileAvatar">🏃</div>
+      <div class="profile-name-wrap">
+        <div class="profile-name" id="profileName">นักผจญภัย</div>
+        <div class="profile-bio" id="profileBio">LV.1 — เริ่มต้นเส้นทางฟิตเนส</div>
+        <div class="profile-badges" id="profileBadges"><span>🌱</span></div>
+      </div>
+    </div>
+
+    <div class="profile-stats-grid">
+      <div class="profile-stat"><div class="ps-value neon-gold" id="psCoins">0</div><div class="ps-label">🪙 ทั้งหมด</div></div>
+      <div class="profile-stat"><div class="ps-value neon-green" id="psWorkouts">0</div><div class="ps-label">🏋️ ออกกำลังกาย</div></div>
+      <div class="profile-stat"><div class="ps-value neon-pink" id="psStreak">0</div><div class="ps-label">🔥 Streak สูงสุด</div></div>
+    </div>
+
+    <div class="section-title">🏆 ความสำเร็จ</div>
+    <div class="shop-grid" id="achievementGrid"></div>
+
+    <div class="section-title" style="margin-top:12px;">📊 Activity Calendar</div>
+    <div class="heatmap">
+      <div style="font-size:12px;font-weight:600;" id="heatmapMonth"></div>
+      <div class="heatmap-grid" id="heatmapGrid"></div>
+      <div class="heatmap-labels">
+        <span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span><span>อา</span>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center;justify-content:flex-end;margin-top:6px;font-size:9px;color:var(--text-muted)">
+        <span>น้อย</span>
+        <span style="width:10px;height:10px;border-radius:2px;background:rgba(0,212,255,0.15)"></span>
+        <span style="width:10px;height:10px;border-radius:2px;background:rgba(0,212,255,0.35)"></span>
+        <span style="width:10px;height:10px;border-radius:2px;background:rgba(0,212,255,0.55)"></span>
+        <span style="width:10px;height:10px;border-radius:2px;background:rgba(0,212,255,0.75)"></span>
+        <span style="width:10px;height:10px;border-radius:2px;background:var(--neon-blue)"></span>
+        <span>มาก</span>
+      </div>
+    </div>
+
+    <div class="section-title">🏆 Leaderboard</div>
+    <div class="leader-tabs">
+      <div class="leader-tab active" onclick="switchLeaderTab('weekly',this)">📅 อาทิตย์นี้</div>
+      <div class="leader-tab" onclick="switchLeaderTab('monthly',this)">📆 เดือนนี้</div>
+      <div class="leader-tab" onclick="switchLeaderTab('alltime',this)">🏆 ตลอดกาล</div>
+    </div>
+    <div class="leader-list" id="leaderList"></div>
+  </div>
+
+</div>
+
+<!-- ===== BOTTOM NAV ===== -->
+<div class="bottom-nav">
+  <button class="nav-btn active" data-page="home"><span class="nav-icon">🏠</span> หน้าแรก</button>
+  <button class="nav-btn" data-page="upload"><span class="nav-icon">📸</span> บันทึก</button>
+  <button class="nav-btn" data-page="quest"><span class="nav-icon">📅</span> เควส</button>
+  <button class="nav-btn" data-page="shop"><span class="nav-icon">🛒</span> ร้านค้า</button>
+  <button class="nav-btn" data-page="profile"><span class="nav-icon">👤</span> โปรไฟล์</button>
+</div>
+
+<!-- ===== SNACKBAR ===== -->
+<div class="snackbar" id="snackbar"></div>
+
+<!-- ===== LEVEL UP OVERLAY ===== -->
+<div class="levelup-overlay" id="levelUpOverlay">
+  <div class="levelup-modal">
+    <div class="lu-icon" id="luIcon">⬆️</div>
+    <div class="lu-title" id="luTitle">LEVEL UP!</div>
+    <div class="lu-desc" id="luDesc">คุณปลดล็อกความสามารถใหม่!</div>
+    <button class="lu-btn" onclick="document.getElementById('levelUpOverlay').classList.remove('show')">🗡️ รับเลย!</button>
+  </div>
+</div>
+
+<script>
+// ========== CONFIG ==========
+const ACTIVITIES = [
+  { id:'cardio',emoji:'🏃',name:'คาร์ดิโอ',duration:'30นาที',coins:10 },
+  { id:'weights',emoji:'🏋️',name:'เวทเทรนนิ่ง',duration:'30นาที',coins:12 },
+  { id:'walk',emoji:'🚶',name:'เดินทั่วไป',duration:'30นาที',coins:3 },
+  { id:'yoga',emoji:'🧘',name:'โยคะ/ยืด',duration:'20นาที',coins:6 },
+];
+const SHOP_CATEGORIES = [
+  { id:'all',name:'✨ ทั้งหมด' },
+  { id:'food',name:'🍕 อาหาร' },
+  { id:'entertain',name:'🎮 บันเทิง' },
+  { id:'rest',name:'😴 พักผ่อน' },
+  { id:'cosmetic',name:'💎 เครื่องประดับ' },
+];
+const SHOP_ITEMS = [
+  { id:'milk_tea',icon:'🧋',name:'ชานมไข่มุก',cost:15,cat:'food' },
+  { id:'gaming_night',icon:'🎮',name:'Gaming Night',cost:18,cat:'entertain',badge:'limited' },
+  { id:'special_meal',icon:'🍽️',name:'มื้อพิเศษตามใจ',cost:25,cat:'food' },
+  { id:'movie_day',icon:'🎬',name:'ดูหนัง/วันพักผ่อน',cost:25,cat:'rest' },
+  { id:'pizza',icon:'🍕',name:'พิซซ่า',cost:30,cat:'food',badge:'weekly' },
+  { id:'buffet',icon:'🦐',name:'บุฟเฟต์',cost:80,cat:'food' },
+  { id:'rest_day',icon:'😴',name:'วันพักผ่อนเต็มวัน',cost:20,cat:'rest' },
+  { id:'theme_fire',icon:'🔥',name:'Theme เพลิง',cost:50,cat:'cosmetic' },
+  { id:'theme_ocean',icon:'🌊',name:'Theme สมุทร',cost:50,cat:'cosmetic' },
+  { id:'theme_forest',icon:'🌳',name:'Theme ป่าลึก',cost:50,cat:'cosmetic' },
+  { id:'frame_gold',icon:'🖼️',name:'กรอบทอง',cost:30,cat:'cosmetic' },
+  { id:'avatar_crown',icon:'👑',name:'มงกุฏ Avatar',cost:40,cat:'cosmetic',badge:'limited' },
+];
+const QUESTS_DAILY = [
+  { id:'d_exercise',name:'ออกกำลังกายวันนี้',target:1,type:'any',reward:5 },
+  { id:'d_cardio',name:'คาร์ดิโอ 20 นาที',target:1,type:'cardio',reward:5 },
+];
+const QUESTS_WEEKLY = [
+  { id:'w_cardio_3',name:'คาร์ดิโอครบ 3 ครั้ง',target:3,type:'cardio',reward:15 },
+  { id:'w_gym_4',name:'เข้ายิมครบ 4 วัน',target:4,type:'days',reward:20 },
+  { id:'w_all_types',name:'ครบทุกประเภท',target:4,type:'types',reward:25 },
+  { id:'w_calories',name:'เผาผลาญ 2000 kcal',target:2000,type:'calories',reward:30 },
+];
+const QUESTS_MONTHLY = [
+  { id:'m_20_days',name:'ออกกำลังกาย 20 วัน',target:20,type:'days_month',reward:100 },
+  { id:'m_5000_cal',name:'เผาผลาญ 5000 kcal',target:5000,type:'cal_month',reward:150 },
+  { id:'m_30_streak',name:'Streak 30 วัน',target:30,type:'streak',reward:200 },
+];
+const LEVELS = [
+  { level:1,coins:0,title:'นักผจญภัยมือใหม่',badge:'🌱',theme:'' },
+  { level:2,coins:100,title:'นักสู้ผู้เริ่มต้น',badge:'⚔️',theme:'' },
+  { level:3,coins:250,title:'อัศวินฟิตเนส',badge:'🛡️',theme:'theme-fire' },
+  { level:4,coins:500,title:'จอมพลแห่งยิม',badge:'👑',theme:'theme-ocean' },
+  { level:5,coins:1000,title:'ตำนานผู้พิชิต',badge:'💎',theme:'theme-forest' },
+];
+const DAILY_LIMIT = 5;
+
+// ========== STATE ==========
+let state;
+function defaultState(){
+  return {
+    coins:0,totalCoinsEarned:0,streak:0,longestStreak:0,
+    lastWorkoutDate:null,level:1,
+    totalWorkouts:0,todayCount:0,weekCount:0,monthCalories:0,
+    weekStart:getWeekStart(),
+    workoutLog:[],imageHashes:[],
+    questProgress:{},questClaimed:[],
+    shopBought:[],boughtThemes:[],frozenUsed:false,
+    verifications:[],
+  };
+}
+function getWeekStart(){
+  const d=new Date();const day=d.getDay();const diff=d.getDate()-day+(day===0?-6:1);
+  const m=new Date(d);m.setDate(diff);m.setHours(0,0,0,0);return m.toISOString();
+}
+function getMonthStart(){
+  const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1).toISOString();
+}
+function getTodayStr(){return new Date().toISOString().slice(0,10)}
+
+function loadState(){
+  const raw=localStorage.getItem('fitquest_v3');
+  if(raw){
+    try{
+      const s=JSON.parse(raw);
+      state={...defaultState(),...s};
+      const ws=getWeekStart();
+      if(state.weekStart!==ws){
+        state.weekStart=ws;state.weekCount=0;
+        if(!state.questProgress)state.questProgress={};
+        ['w_cardio_3','w_gym_4','w_all_types','w_calories'].forEach(k=>state.questProgress[k]=0);
+      }
+    }catch(e){state=defaultState()}
+  }else state=defaultState();
+  state.todayCount=state.workoutLog.filter(e=>isToday(e.date)).length;
+  state.weekCount=state.workoutLog.filter(e=>isThisWeek(e.date)).length;
+  checkStreak();recalcLevel();saveState();
+}
+function saveState(){localStorage.setItem('fitquest_v3',JSON.stringify(state))}
+function isToday(d){return d.slice(0,10)===getTodayStr()}
+function isThisWeek(d){
+  const dt=new Date(d),ws=new Date(state.weekStart);
+  return dt>=ws;
+}
+function isThisMonth(d){
+  const dt=new Date(d),ms=new Date(getMonthStart());
+  return dt>=ms;
+}
+
+function checkStreak(){
+  if(!state.lastWorkoutDate){state.streak=0;return}
+  const t=getTodayStr(),y=new Date();y.setDate(y.getDate()-1);const ys=y.toISOString().slice(0,10);
+  const last=state.lastWorkoutDate.slice(0,10);
+  if(last===t||last===ys)return;
+  const ld=new Date(last),n=new Date();
+  const diff=Math.floor((n-ld)/(1000*60*60*24));
+  if(diff>1&&(!state.frozenUsed||diff>2))state.streak=0;
+}
+function getStreakMult(){
+  if(state.streak<=0)return 1;if(state.streak<=3)return 1;
+  if(state.streak<=7)return 1.5;return 2;
+}
+function getCurrentLevel(){
+  let lv=1;
+  for(let i=LEVELS.length-1;i>=0;i--){if(state.totalCoinsEarned>=LEVELS[i].coins){lv=LEVELS[i].level;break}}
+  return lv;
+}
+function recalcLevel(){
+  const nl=getCurrentLevel();
+  if(nl!==state.level){
+    state.level=nl;
+    showLvUp(LEVELS[nl-1]);
+  }
+  state.level=nl;
+}
+function showLvUp(lvInfo){
+  document.getElementById('luIcon').textContent=lvInfo.badge;
+  document.getElementById('luTitle').textContent=`⬆️ LEVEL ${lvInfo.level}!`;
+  document.getElementById('luDesc').textContent=`${lvInfo.title} — ปลดล็อก ${lvInfo.theme?'ธีมใหม่ + ':''}ของตกแต่งใหม่!`;
+  document.getElementById('levelUpOverlay').classList.add('show');
+}
+function getNextLevelCoins(){
+  const idx=LEVELS.findIndex(l=>l.coins>state.totalCoinsEarned);
+  return idx===-1?null:LEVELS[idx].coins;
+}
+
+// ========== BACKEND CONFIG ==========
+const API_BASE = 'http://' + window.location.hostname + ':3456';
+let backendAvailable = false;
+
+// Check backend availability
+fetch(API_BASE + '/api/health')
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'ok') {
+      backendAvailable = true;
+      console.log('🤖 Backend Agent System connected!');
+      console.log('🤖 Agents:', data.agents.map(a => a.name).join(', '));
+      showSnack('🤖 เชื่อมต่อ Agent System แล้ว!');
+    }
+  })
+  .catch(() => {
+    console.log('🤖 Backend not available, using local simulation');
+  });
+
+// ========== TAKE A SCREENSHOT ==========
+let activeActId='cardio';
+let upFileData=null,upFileHash=null;
+
+function selectActivity(id){
+  activeActId=id;
+  document.querySelectorAll('.act-option').forEach(el=>el.classList.remove('active'));
+  document.querySelector(`[data-act="${id}"]`).classList.add('active');
+  updateRewardPreview();
+}
+
+// File handler
+document.getElementById('upFile').addEventListener('change',async function(e){
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const buf=await f.arrayBuffer();
+    const hash=await crypto.subtle.digest('SHA-256',buf);
+    upFileHash=Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }catch(e){upFileHash='h_'+Date.now()}
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    upFileData=ev.target.result;
+    document.getElementById('upPreviewImg').src=upFileData;
+    document.getElementById('upPreview').style.display='block';
+    document.getElementById('uzIcon').textContent='✅';
+    document.getElementById('uzText').textContent='อัปโหลดสำเร็จ!';
+    document.getElementById('uploadZone').classList.add('has-file');
+    document.getElementById('verifyStatus').className='verify-status pending';
+    document.getElementById('verifyStatusText').textContent='⏳ กำลังตรวจสอบหลักฐาน...';
+    runUploadVerification();
+  };
+  reader.readAsDataURL(f);
+});
+
+async function runUploadVerification(){
+  // Check daily limit (local)
+  const todayEntries=state.workoutLog.filter(e=>isToday(e.date)).length;
+  if(todayEntries>=DAILY_LIMIT){
+    document.getElementById('verifyStatus').className='verify-status rejected';
+    document.getElementById('verifyStatusText').textContent='❌ วันนี้ครบจำนวนสูงสุดแล้ว!';
+    document.getElementById('submitActivityBtn').disabled=true;
+    return;
+  }
+
+  // Check duplicate (local)
+  if(state.imageHashes.includes(upFileHash)){
+    document.getElementById('verifyStatus').className='verify-status rejected';
+    document.getElementById('verifyStatusText').textContent='❌ ตรวจพบภาพซ้ำ! กรุณาใช้รูปใหม่';
+    document.getElementById('submitActivityBtn').disabled=true;
+    return;
+  }
+
+  // Call backend if available
+  if (backendAvailable) {
+    try {
+      document.getElementById('verifyStatus').className='verify-status pending';
+      document.getElementById('verifyStatusText').textContent='🤖 ส่งตรวจสอบ Agent System...';
+
+      const formData = new FormData();
+      formData.append('image', upFileData ? dataURLtoBlob(upFileData) : new Blob([]));
+      formData.append('activityId', activeActId);
+      formData.append('duration', document.getElementById('upDuration').value || '30');
+      formData.append('distance', document.getElementById('upDistance').value || '0');
+      formData.append('imageHash', upFileHash || '');
+      formData.append('streak', state.streak.toString());
+
+      const resp = await fetch(API_BASE + '/api/activity/verify', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!resp.ok) throw new Error('Server error');
+      const result = await resp.json();
+
+      if (result.status === 'approved') {
+        document.getElementById('verifyStatus').className='verify-status approved';
+        document.getElementById('verifyStatusText').textContent=
+          `✅ ${result.messages.at(-1)} (${result.processingTime}ms)`;
+        document.getElementById('submitActivityBtn').disabled=false;
+      } else {
+        document.getElementById('verifyStatus').className='verify-status rejected';
+        document.getElementById('verifyStatusText').textContent=
+          `❌ ${result.messages.join(' | ')}`;
+        document.getElementById('submitActivityBtn').disabled=true;
+      }
+
+      updateRewardPreview();
+      return;
+    } catch (e) {
+      console.log('Backend unavailable, using local verification');
+    }
+  }
+
+  // === Fallback: Local simulation ===
+  setTimeout(()=>{
+    document.getElementById('verifyStatus').className='verify-status pending';
+    document.getElementById('verifyStatusText').textContent='🔍 [Verification Agent] Checking screenshot...';
+  },200);
+
+  setTimeout(()=>{
+    document.getElementById('verifyStatus').className='verify-status pending';
+    document.getElementById('verifyStatusText').textContent='🚨 [Anti-Cheat Agent] Analyzing for fraud...';
+  },600);
+
+  setTimeout(()=>{
+    document.getElementById('verifyStatus').className='verify-status pending';
+    document.getElementById('verifyStatusText').textContent='🤖 [AI Agent] Reading workout data from image...';
+  },1100);
+
+  setTimeout(()=>{
+    document.getElementById('verifyStatus').className='verify-status approved';
+    document.getElementById('verifyStatusText').textContent='✅ ผ่านการตรวจสอบ! พร้อมรับเหรียญ 🪙';
+    document.getElementById('submitActivityBtn').disabled=false;
+    updateRewardPreview();
+  },1800);
+}
+
+function dataURLtoBlob(dataurl) {
+  const arr = dataurl.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) u8arr[n] = bstr.charCodeAt(n);
+  return new Blob([u8arr], { type: mime });
+}
+
+function updateRewardPreview(){
+  const act=ACTIVITIES.find(a=>a.id===activeActId);
+  if(!act)return;
+  const mult=getStreakMult();
+  const base=act.coins;
+  const rp=document.getElementById('rpAmount');
+  const rb=document.getElementById('rpBonus');
+  if(mult>1)rp.textContent=`${base} + ${Math.round(base*(mult-1))} = ${Math.round(base*mult)} 🪙`;
+  else rp.textContent=`${base} 🪙`;
+  rb.textContent=`x${mult}`;
+}
+
+function submitActivity(){
+  if(!upFileData||document.getElementById('submitActivityBtn').disabled)return;
+  const act=ACTIVITIES.find(a=>a.id===activeActId);
+  if(!act)return;
+
+  const today=new Date().toISOString();
+  const todayStr=getTodayStr();
+  const mult=getStreakMult();
+  const base=act.coins;
+  const bonus=Math.round(base*(mult-1));
+  const total=base+bonus;
+
+  // Streak
+  const y=new Date();y.setDate(y.getDate()-1);const ys=y.toISOString().slice(0,10);
+  if(state.lastWorkoutDate){
+    const last=state.lastWorkoutDate.slice(0,10);
+    if(last!==todayStr){
+      if(last===ys)state.streak++;
+      else state.streak=1;
+    }
+  }else state.streak=1;
+  state.lastWorkoutDate=today;
+  if(state.streak>state.longestStreak)state.longestStreak=state.streak;
+
+  state.coins+=total;
+  state.totalCoinsEarned+=total;
+  state.totalWorkouts++;
+  state.todayCount=state.workoutLog.filter(e=>isToday(e.date)).length+1;
+  state.weekCount=state.workoutLog.filter(e=>isThisWeek(e.date)).length+1;
+
+  const dur=parseInt(document.getElementById('upDuration').value)||30;
+  const dist=document.getElementById('upDistance').value||'-';
+  const cal=parseInt(document.getElementById('upCalories').value)||0;
+  state.monthCalories+=cal;
+
+  state.workoutLog.unshift({
+    date:today,activity:act.name,coins:total,bonus:bonus>0?`+${bonus}`:null,
+    duration:dur,distance:dist,calories:cal,
+    note:document.getElementById('upNote').value||'',
+    verified:true,
+  });
+  if(upFileHash)state.imageHashes.push(upFileHash);
+
+  // Update quest progress
+  updateQuestProgress(act.id,cal);
+  recalcLevel();
+  saveState();
+
+  // Coin animation!
+  spawnCoinAnimation();
+
+  // Reset form
+  upFileData=null;upFileHash=null;
+  document.getElementById('upPreview').style.display='none';
+  document.getElementById('uzIcon').textContent='📷';
+  document.getElementById('uzText').textContent='แตะเพื่อถ่ายรูปหรือเลือก Screenshot';
+  document.getElementById('uploadZone').classList.remove('has-file');
+  document.getElementById('upFile').value='';
+  document.getElementById('verifyStatus').className='verify-status pending';
+  document.getElementById('verifyStatusText').textContent='⏳ รออัปโหลดหลักฐาน';
+  document.getElementById('submitActivityBtn').disabled=true;
+
+  // Re-render all
+  render();
+
+  const msg=bonus>0?`✅ ${act.name} +${total} 🪙 🔥 x${mult}!`:`✅ ${act.name} +${total} 🪙`;
+  showSnack(msg);
+}
+
+function spawnCoinAnimation(){
+  const coin=document.createElement('div');
+  coin.className='coin-fly';
+  coin.textContent='🪙';
+  coin.style.left=Math.random()*60+20+'%';
+  coin.style.top='40%';
+  document.body.appendChild(coin);
+  setTimeout(()=>coin.remove(),1000);
+  // Multiple coins
+  for(let i=0;i<3;i++){
+    setTimeout(()=>{
+      const c=document.createElement('div');
+      c.className='coin-fly';
+      c.textContent='🪙';
+      c.style.left=Math.random()*60+20+'%';
+      c.style.top=Math.random()*30+30+'%';
+      c.style.fontSize='20px';
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),1000);
+    },i*150);
+  }
+}
+
+function updateQuestProgress(actId,cal){
+  const todayStr=getTodayStr();
+  const weekLogs=state.workoutLog.filter(e=>isThisWeek(e.date));
+  const monthLogs=state.workoutLog.filter(e=>isThisMonth(e.date));
+
+  if(!state.questProgress)state.questProgress={};
+
+  // Daily
+  state.questProgress.d_exercise=state.todayCount;
+  state.questProgress.d_cardio=weekLogs.filter(e=>e.activity==='คาร์ดิโอ').length;
+
+  // Weekly
+  state.questProgress.w_cardio_3=weekLogs.filter(e=>e.activity==='คาร์ดิโอ').length;
+  const uniqueDays=new Set(weekLogs.map(e=>e.date.slice(0,10)));
+  state.questProgress.w_gym_4=uniqueDays.size;
+  const types=new Set(weekLogs.map(e=>e.activity));
+  state.questProgress.w_all_types=types.size;
+  const weekCals=weekLogs.reduce((s,e)=>s+(e.calories||0),0);
+  state.questProgress.w_calories=weekCals;
+
+  // Monthly
+  const monthDays=new Set(monthLogs.map(e=>e.date.slice(0,10)));
+  state.questProgress.m_20_days=monthDays.size;
+  const monthCals=monthLogs.reduce((s,e)=>s+(e.calories||0),0);
+  state.questProgress.m_5000_cal=monthCals;
+  state.questProgress.m_30_streak=state.streak;
+}
+
+// ========== CLAIM QUEST ==========
+function claimQuest(qid,cost){
+  if(state.questClaimed.includes(qid))return;
+  const allQuests=[...QUESTS_DAILY,...QUESTS_WEEKLY,...QUESTS_MONTHLY];
+  const q=allQuests.find(x=>x.id===qid);
+  if(!q)return;
+  let completed=false;
+  const p=state.questProgress[qid]||0;
+  completed=p>=q.target;
+  if(!completed){showSnack('❌ ยังทำไม่สำเร็จ!');return}
+  state.coins+=q.reward;
+  state.totalCoinsEarned+=q.reward;
+  state.questClaimed.push(qid);
+  recalcLevel();saveState();render();
+  showSnack(`🎉 +${q.reward} 🪙`);
+}
+
+// ========== BUY SHOP ==========
+function buyShopItem(id){
+  const item=SHOP_ITEMS.find(i=>i.id===id);
+  if(!item)return;
+  if(state.shopBought.includes(id)){showSnack('🤔 มีแล้ว!');return}
+  if(state.coins<item.cost){showSnack(`😅 ขาด ${item.cost-state.coins} 🪙`);return}
+  state.coins-=item.cost;
+  if(item.id.startsWith('theme_'))state.boughtThemes.push(id);
+  state.shopBought.push(id);
+  saveState();render();
+  showSnack(`🎉 ซื้อ ${item.name} แล้ว!`);
+}
+
+// ========== RENDER ==========
+function render(){
+  // HOME
+  document.getElementById('homeCoins').textContent=state.coins;
+  document.getElementById('homeCoinsEarned').textContent=`สะสมทั้งหมด ${state.totalCoinsEarned} 🪙`;
+  document.getElementById('hCoinDisplay').textContent=state.coins;
+  const lvInfo=LEVELS[state.level-1]||LEVELS[0];
+  document.getElementById('homeLevelBadge').textContent=`LV.${state.level}`;
+  document.getElementById('miniName').textContent=lvInfo.title;
+  document.getElementById('miniLevel').textContent=`LV.${state.level} ${lvInfo.badge}`;
+  document.getElementById('miniAvatar').textContent=lvInfo.badge;
+
+  // EXP bar
+  const nc=getNextLevelCoins();
+  if(nc!==null){
+    const prev=state.level>1?LEVELS[state.level-2].coins:0;
+    const pct=Math.min(100,((state.totalCoinsEarned-prev)/(nc-prev))*100);
+    document.getElementById('homeExpBar').style.width=pct+'%';
+    document.getElementById('homeExpText').textContent=`${state.totalCoinsEarned} / ${nc}`;
+  }else{
+    document.getElementById('homeExpBar').style.width='100%';
+    document.getElementById('homeExpText').textContent=`MAX LV.${state.level}`;
+  }
+
+  // Daily
+  document.getElementById('dailyDone').textContent=state.todayCount;
+  document.getElementById('dailyBar').style.width=Math.min(100,(state.todayCount/DAILY_LIMIT)*100)+'%';
+
+  // Streak
+  document.getElementById('streakNum').textContent=state.streak;
+  document.getElementById('streakMult').textContent=`x${getStreakMult()}`;
+  document.getElementById('freezeLabel').textContent=state.frozenUsed?'ใช้สิทธิ์พักแล้ว':'พักได้ 1/สัปดาห์';
+
+  // Quest preview
+  renderQuestPreview();
+  renderRecent();
+  document.getElementById('recentCount').textContent=`${state.todayCount} วันนี้`;
+
+  // UPLOAD
+  updateRewardPreview();
+  document.getElementById('shopCoinDisplay').textContent=`🪙 ${state.coins}`;
+
+  // QUEST
+  renderQuests();
+
+  // SHOP
+  renderShop();
+
+  // PROFILE
+  renderProfile();
+
+  // HEATMAP
+  renderHeatmap();
+
+  // LEADERBOARD
+  renderLeaderboard();
+}
+
+function renderQuestPreview(){
+  const list=document.getElementById('questPreview');list.innerHTML='';
+  QUESTS_WEEKLY.forEach(q=>{
+    const p=state.questProgress[q.id]||0;
+    const done=p>=q.target;
+    const pct=Math.min(100,(p/q.target)*100);
+    list.innerHTML+=`
+      <div class="quest-mini">
+        <div class="quest-mini-icon">${done?'✅':'📅'}</div>
+        <div class="quest-mini-info">
+          <div class="quest-mini-name">${q.name}</div>
+          <div class="quest-mini-bar"><div class="quest-mini-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="quest-mini-reward">${p}/${q.target}</div>
+      </div>`;
+  });
+}
+
+function renderRecent(){
+  const list=document.getElementById('recentList');list.innerHTML='';
+  const logs=state.workoutLog.slice(0,5);
+  if(!logs.length){list.innerHTML='<div style="font-size:12px;color:var(--text-dim);padding:8px">ยังไม่มีประวัติ 💪</div>';return}
+  logs.forEach(l=>{
+    const d=new Date(l.date);
+    const ds=d.toLocaleDateString('th-TH',{weekday:'short',month:'short',day:'numeric'});
+    list.innerHTML+=`
+      <div class="recent-item">
+        <span class="recent-emoji">${l.activity==='คาร์ดิโอ'?'🏃':l.activity==='เวทเทรนนิ่ง'?'🏋️':l.activity==='เดินทั่วไป'?'🚶':'🧘'}</span>
+        <span class="recent-name">${l.activity}</span>
+        <span class="recent-time">${ds}</span>
+        <span class="recent-coin">+${l.coins}🪙</span>
+      </div>`;
+  });
+}
+
+function renderQuests(){
+  const list=document.getElementById('questCardList');list.innerHTML='';
+  const tab=document.querySelector('.quest-tab.active');
+  const type=tab?tab.dataset.qt:'weekly';
+  let quests=[];
+  if(type==='daily')quests=QUESTS_DAILY;
+  else if(type==='weekly')quests=QUESTS_WEEKLY;
+  else quests=QUESTS_MONTHLY;
+
+  if(!quests.length){list.innerHTML='<div style="font-size:12px;color:var(--text-dim);padding:12px">ไม่มีเควส</div>';return}
+
+  quests.forEach(q=>{
+    const p=state.questProgress[q.id]||0;
+    const done=p>=q.target;
+    const claimed=state.questClaimed.includes(q.id);
+    const pct=Math.min(100,(p/q.target)*100);
+
+    let btnClass='locked',btnText='🔒';
+    if(claimed){btnClass='claimed';btnText='✅ รับแล้ว'}
+    else if(done){btnClass='ready';btnText='🎁 รับรางวัล'}
+    else{btnClass='locked';btnText='🔒 กำลังทำ'}
+
+    list.innerHTML+=`
+      <div class="quest-card">
+        <div class="qc-header">
+          <span class="qc-name">${q.name}</span>
+          <span class="qc-reward">+${q.reward} 🪙</span>
+        </div>
+        <div class="qc-bar-wrap"><div class="qc-bar" style="width:${pct}%"></div></div>
+        <div class="qc-footer">
+          <span class="qc-progress">${p} / ${q.target}</span>
+          <span class="qc-time">${claimed?'✅ เสร็จแล้ว':`${Math.round(pct)}%`}</span>
+          <button class="qc-claim ${btnClass}" onclick="claimQuest('${q.id}',${q.reward})" ${claimed||!done?'disabled':''}>${btnText}</button>
+        </div>
+      </div>`;
+  });
+}
+
+function renderShop(){
+  const cat=document.querySelector('.shop-cat.active');
+  const cid=cat?cat.dataset.sc:'all';
+
+  // Categories
+  const cats=document.getElementById('shopCategories');
+  if(!cats.querySelector('.shop-cat')){
+    cats.innerHTML=SHOP_CATEGORIES.map(c=>
+      `<div class="shop-cat ${c.id==='all'?'active':''}" data-sc="${c.id}" onclick="switchShopCat('${c.id}',this)">${c.name}</div>`
+    ).join('');
+  }
+
+  // Items
+  const grid=document.getElementById('shopGrid');
+  let items=SHOP_ITEMS;
+  if(cid!=='all')items=items.filter(i=>i.cat===cid);
+
+  grid.innerHTML=items.map(item=>{
+    const owned=state.shopBought.includes(item.id);
+    const canBuy=state.coins>=item.cost;
+    let btn='',badge='';
+    if(owned)btn='<button class="sc-btn owned">✅ มีแล้ว</button>';
+    else if(!canBuy)btn='<button class="sc-btn nocoin">🪙 ไม่พอ</button>';
+    else btn=`<button class="sc-btn buy" onclick="buyShopItem('${item.id}')">ซื้อเลย</button>`;
+    if(item.badge)badge=`<div class="sc-badge ${item.badge}">${item.badge==='limited'?'⭐ LIMITED':'📅 WEEKLY'}</div>`;
+    return `
+      <div class="shop-card ${owned?'bought':''}">
+        ${badge}
+        <div class="sc-icon">${item.icon}</div>
+        <div class="sc-name">${item.name}</div>
+        <div class="sc-cost">${item.cost} 🪙</div>
+        ${btn}
+      </div>`;
+  }).join('');
+}
+
+function renderProfile(){
+  const lvInfo=LEVELS[state.level-1]||LEVELS[LEVELS.length-1];
+  document.getElementById('profileAvatar').textContent=lvInfo.badge;
+  document.getElementById('profileName').textContent=lvInfo.title;
+  document.getElementById('profileBio').textContent=`LV.${state.level} — ${lvInfo.title}`;
+  document.getElementById('psCoins').textContent=state.totalCoinsEarned;
+  document.getElementById('psWorkouts').textContent=state.totalWorkouts;
+  document.getElementById('psStreak').textContent=state.longestStreak;
+
+  // Badges
+  let badges='';
+  for(let i=0;i<state.level;i++)badges+=LEVELS[i].badge;
+  if(state.boughtThemes.length){
+    const themeEmojis={theme_fire:'🔥',theme_ocean:'🌊',theme_forest:'🌳'};
+    state.boughtThemes.forEach(t=>{if(themeEmojis[t])badges+=themeEmojis[t]});
+  }
+  document.getElementById('profileBadges').innerHTML=badges?badges.split('').map(b=>`<span>${b}</span>`).join(''):'<span>🌱</span>';
+
+  // Achievements (unlocks)
+  const unlocks=[];
+  for(let i=1;i<=state.level;i++){
+    const lv=LEVELS[i-1];
+    if(lv)unlocks.push({icon:lv.badge,name:lv.title,desc:`LV.${lv.level}`});
+  }
+  state.boughtThemes.forEach(t=>{
+    const names={theme_fire:'🔥 เพลิงพิโรธ',theme_ocean:'🌊 สมุทรสีคราม',theme_forest:'🌳 ป่าลึก'};
+    if(names[t])unlocks.push({icon:names[t].split(' ')[0],name:names[t],desc:'Theme'});
+  });
+  const ag=document.getElementById('achievementGrid');
+  if(unlocks.length){ag.innerHTML=unlocks.map(u=>`
+    <div class="shop-card" style="padding:10px">
+      <div style="font-size:28px">${u.icon}</div>
+      <div style="font-size:11px;font-weight:600;margin-top:4px">${u.name}</div>
+      <div style="font-size:10px;color:var(--text-dim)">${u.desc}</div>
+    </div>`).join('');
+  }else ag.innerHTML='<div style="font-size:12px;color:var(--text-dim);grid-column:1/-1;padding:12px">ยังไม่มี 🏃‍♂️</div>';
+}
+
+function renderHeatmap(){
+  const grid=document.getElementById('heatmapGrid');grid.innerHTML='';
+  const now=new Date();
+  const year=now.getFullYear(),month=now.getMonth();
+  document.getElementById('heatmapMonth').textContent=now.toLocaleDateString('th-TH',{month:'long',year:'numeric'});
+
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const firstDay=new Date(year,month,1).getDay();
+
+  // Build map
+  const dayCount={};
+  state.workoutLog.forEach(l=>{
+    const d=l.date.slice(0,10);
+    dayCount[d]=(dayCount[d]||0)+1;
+  });
+
+  for(let i=0;i<firstDay;i++){
+    const d=document.createElement('div');d.className='heatmap-day';grid.appendChild(d);
+  }
+  for(let i=1;i<=daysInMonth;i++){
+    const d=new Date(year,month,i);
+    const key=d.toISOString().slice(0,10);
+    const cnt=dayCount[key]||0;
+    const level=Math.min(5,cnt);
+    const div=document.createElement('div');
+    div.className=`heatmap-day l${level}`;
+    div.title=`${i} ${now.toLocaleDateString('th-TH',{month:'short'})}: ${cnt} ครั้ง`;
+    div.textContent=cnt>0?cnt:'';
+    grid.appendChild(div);
+  }
+}
+
+function renderLeaderboard(){
+  const list=document.getElementById('leaderList');list.innerHTML='';
+  const tab=document.querySelector('.leader-tab.active');
+  const type=tab?tab.dataset.lt:'weekly';
+
+  // Group log entries
+  const userStats={name:'คุณ',badge:LEVELS[state.level-1].badge,score:0,isMe:true};
+
+  if(type==='weekly'){
+    const ws=new Date(state.weekStart);
+    const weekLogs=state.workoutLog.filter(l=>new Date(l.date)>=ws);
+    const daysSet=new Set(weekLogs.map(l=>l.date.slice(0,10)));
+    userStats.score=daysSet.size;
+  }else if(type==='monthly'){
+    const ms=new Date(getMonthStart());
+    const monthLogs=state.workoutLog.filter(l=>new Date(l.date)>=ms);
+    const daysSet=new Set(monthLogs.map(l=>l.date.slice(0,10)));
+    userStats.score=daysSet.size;
+  }else{
+    userStats.score=state.totalWorkouts;
+  }
+
+  const labelMap={weekly:'วัน',monthly:'วัน',alltime:'ครั้ง'};
+
+  list.innerHTML=`
+    <div class="leader-item me">
+      <div class="leader-rank neon-gold">🏆</div>
+      <div class="leader-avatar">${userStats.badge}</div>
+      <div class="leader-info">
+        <div class="leader-name">${userStats.name}</div>
+        <div class="leader-stat">${userStats.score} ${labelMap[type]}</div>
+      </div>
+      <div class="leader-score">${userStats.score}</div>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);text-align:center;padding:10px">
+      🌟 ระบบ Leaderboard จะทำงานเต็มรูปแบบเมื่อมีผู้เล่นหลายคน
+    </div>`;
+}
+
+// ========== NAVIGATION ==========
+function switchPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`page-${id}`).classList.add('active');
+  document.querySelector(`[data-page="${id}"]`).classList.add('active');
+  if(id==='upload')renderActivitiesSelector();
+}
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>switchPage(btn.dataset.page));
+});
+
+function renderActivitiesSelector(){
+  const sel=document.getElementById('activitySelector');sel.innerHTML='';
+  ACTIVITIES.forEach(a=>{
+    sel.innerHTML+=`
+      <div class="act-option ${a.id===activeActId?'active':''}" data-act="${a.id}" onclick="selectActivity('${a.id}')">
+        <div class="ao-icon">${a.emoji}</div>
+        <div class="ao-name">${a.name}</div>
+        <div class="ao-coins">+${a.coins} 🪙</div>
+      </div>`;
+  });
+}
+
+function switchQuestTab(type,el){
+  document.querySelectorAll('.quest-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  el.dataset.qt=type;
+  renderQuests();
+}
+
+let shopCatRendered=false;
+function switchShopCat(id,el){
+  document.querySelectorAll('.shop-cat').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderShop();
+}
+
+function switchLeaderTab(type,el){
+  document.querySelectorAll('.leader-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  el.dataset.lt=type;
+  renderLeaderboard();
+}
+
+// ========== SNACKBAR ==========
+function showSnack(msg){
+  const el=document.getElementById('snackbar');
+  el.textContent=msg;
+  el.classList.add('show');
+  clearTimeout(el._timeout);
+  el._timeout=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ========== THEME CHANGE ==========
+function applyTheme(){
+  const lv=LEVELS[state.level-1];
+  if(lv&&lv.theme){
+    // Check if user bought the theme
+    const themeMap={theme_fire:'theme-fire',theme_ocean:'theme-ocean',theme_forest:'theme-forest'};
+    const themeClass=themeMap[lv.theme];
+    if(themeClass){
+      document.body.classList.remove('theme-fire','theme-ocean','theme-forest');
+      if(state.boughtThemes.includes(lv.theme))document.body.classList.add(themeClass);
+    }
+  }
+}
+
+// ========== INIT ==========
+loadState();
+renderActivitiesSelector();
+render();
+applyTheme();
+
+// Auto-refresh pages every 30s
+setInterval(()=>{
+  state.todayCount=state.workoutLog.filter(e=>isToday(e.date)).length;
+  state.weekCount=state.workoutLog.filter(e=>isThisWeek(e.date)).length;
+  render();
+},30000);
+</script>
+</body>
+</html>

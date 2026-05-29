@@ -1,0 +1,234 @@
+{
+  "version": 1,
+  "updatedAt": "2026-05-27T07:43:05.424Z",
+  "entries": {
+    "memory:memory/2026-05-21-1254.md:1:58": {
+      "key": "memory:memory/2026-05-21-1254.md:1:58",
+      "path": "memory/2026-05-21-1254.md",
+      "startLine": 1,
+      "endLine": 58,
+      "source": "memory",
+      "snippet": "# Session: 2026-05-21 12:54:55 GMT+7 - **Session Key**: agent:main:discord:direct:1085945149848297563 - **Session ID**: 41d9551a-326e-4683-b3fb-a6a583a2b14f - **Source**: discord ## Conversation Summary user: Conversation info (untrusted metadata): ```json { \"chat_id\": \"user:1085945149848297563\", \"message_id\": \"1506891319862366300\", \"sender_id\": \"1085945149848297563\", \"sender\": \"Arunwa Rx-0 แห่~หัว~\", \"timestamp\": \"Thu 2026-05-21 12:28 GMT+7\", \"inbound_event_kind\": \"user_request\" } ``` Sender (untrusted metadata): ```json { \"label\": \"Arunwa Rx-0 แห่~หัว~ (1085945149848297563)\", \"id\": \"1085945149848297563\", \"name\": \"Arunwa Rx-0 แห่~หัว~\", \"username\": \"arunwa\", \"tag\":",
+      "recallCount": 7,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 3.194147226214408,
+      "maxScore": 0.49745869040489193,
+      "firstRecalledAt": "2026-05-22T07:17:29.151Z",
+      "lastRecalledAt": "2026-05-27T07:43:05.424Z",
+      "queryHashes": [
+        "e65581a0fb9d",
+        "55715c8e46c7",
+        "f052f2e04cab",
+        "25a86f07af78",
+        "09f28a758a7f",
+        "f541616a24d7",
+        "b7468138f271"
+      ],
+      "recallDays": [
+        "2026-05-22",
+        "2026-05-27"
+      ],
+      "conceptTags": [
+        "2026-05-21-1254.md",
+        "chat-id",
+        "message-id",
+        "sender-id",
+        "rx-0",
+        "inbound-event-kind",
+        "user-request",
+        "gmt"
+      ]
+    },
+    "memory:memory/2026-05-21-1259.md:1:61": {
+      "key": "memory:memory/2026-05-21-1259.md:1:61",
+      "path": "memory/2026-05-21-1259.md",
+      "startLine": 1,
+      "endLine": 61,
+      "source": "memory",
+      "snippet": "# Session: 2026-05-21 12:59:48 GMT+7 - **Session Key**: agent:main:discord:direct:1085945149848297563 - **Session ID**: 651ab4d6-fb6b-407a-9331-5d5cf165c7db - **Source**: discord ## Conversation Summary user: Conversation info (untrusted metadata): ```json { \"chat_id\": \"user:1085945149848297563\", \"message_id\": \"1506898103461220472\", \"sender_id\": \"1085945149848297563\", \"sender\": \"Arunwa Rx-0 แห่~หัว~\", \"timestamp\": \"Thu 2026-05-21 12:55 GMT+7\", \"inbound_event_kind\": \"user_request\" } ``` Sender (untrusted metadata): ```json { \"label\": \"Arunwa Rx-0 แห่~หัว~ (1085945149848297563)\", \"id\": \"1085945149848297563\", \"name\": \"Arunwa Rx-0 แห่~หัว~\", \"username\": \"arunwa\", \"tag\":",
+      "recallCount": 7,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 3.16947418153286,
+      "maxScore": 0.508236202597618,
+      "firstRecalledAt": "2026-05-22T07:17:29.151Z",
+      "lastRecalledAt": "2026-05-27T07:43:05.424Z",
+      "queryHashes": [
+        "e65581a0fb9d",
+        "55715c8e46c7",
+        "f052f2e04cab",
+        "25a86f07af78",
+        "09f28a758a7f",
+        "f541616a24d7",
+        "b7468138f271"
+      ],
+      "recallDays": [
+        "2026-05-22",
+        "2026-05-27"
+      ],
+      "conceptTags": [
+        "2026-05-21-1259.md",
+        "chat-id",
+        "message-id",
+        "sender-id",
+        "rx-0",
+        "inbound-event-kind",
+        "user-request",
+        "gmt"
+      ]
+    },
+    "memory:memory/2026-05-21-1259.md:45:89": {
+      "key": "memory:memory/2026-05-21-1259.md:45:89",
+      "path": "memory/2026-05-21-1259.md",
+      "startLine": 45,
+      "endLine": 89,
+      "source": "memory",
+      "snippet": "\"inbound_event_kind\": \"user_request\" } ``` Sender (untrusted metadata): ```json { \"label\": \"Arunwa Rx-0 แห่~หัว~ (1085945149848297563)\", \"id\": \"1085945149848297563\", \"name\": \"Arunwa Rx-0 แห่~หัว~\", \"username\": \"arunwa\", \"tag\": \"arunwa\" } ``` มีนาอยู่ไหม assistant: [assistant turn failed before producing content] assistant: [assistant turn failed before producing content] assistant: [assistant turn failed before producing content] assistant: [assistant turn failed before producing content] user: Conversation info (untrusted metadata): ```json { \"chat_id\": \"user:1085945149848297563\", \"message_id\": \"1506899124509868082\", \"sender_id\": \"1085945149848297563\", \"sender\": \"Arunw",
+      "recallCount": 7,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 3.0824279218912123,
+      "maxScore": 0.4812549442052841,
+      "firstRecalledAt": "2026-05-22T07:17:29.151Z",
+      "lastRecalledAt": "2026-05-27T07:43:05.424Z",
+      "queryHashes": [
+        "e65581a0fb9d",
+        "55715c8e46c7",
+        "f052f2e04cab",
+        "25a86f07af78",
+        "09f28a758a7f",
+        "f541616a24d7",
+        "b7468138f271"
+      ],
+      "recallDays": [
+        "2026-05-22",
+        "2026-05-27"
+      ],
+      "conceptTags": [
+        "2026-05-21-1259.md",
+        "inbound-event-kind",
+        "user-request",
+        "rx-0",
+        "chat-id",
+        "message-id",
+        "sender-id",
+        "sender"
+      ]
+    },
+    "memory:memory/2026-05-21-1214.md:1:6": {
+      "key": "memory:memory/2026-05-21-1214.md:1:6",
+      "path": "memory/2026-05-21-1214.md",
+      "startLine": 1,
+      "endLine": 6,
+      "source": "memory",
+      "snippet": "# Session: 2026-05-21 12:14:10 GMT+7 - **Session Key**: agent:main:discord:direct:1085945149848297563 - **Session ID**: 22115ae1-9849-4baa-85e6-a00ac58157fb - **Source**: discord",
+      "recallCount": 7,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 3.048064276576042,
+      "maxScore": 0.48845967352390285,
+      "firstRecalledAt": "2026-05-22T07:17:29.151Z",
+      "lastRecalledAt": "2026-05-27T07:43:05.424Z",
+      "queryHashes": [
+        "e65581a0fb9d",
+        "55715c8e46c7",
+        "f052f2e04cab",
+        "25a86f07af78",
+        "09f28a758a7f",
+        "f541616a24d7",
+        "b7468138f271"
+      ],
+      "recallDays": [
+        "2026-05-22",
+        "2026-05-27"
+      ],
+      "conceptTags": [
+        "2026-05-21-1214.md",
+        "gmt",
+        "key",
+        "agent:main:discord:direct",
+        "22115ae1",
+        "4baa",
+        "85e6",
+        "a00ac58157fb"
+      ]
+    },
+    "memory:memory/2026-05-21-1221.md:1:6": {
+      "key": "memory:memory/2026-05-21-1221.md:1:6",
+      "path": "memory/2026-05-21-1221.md",
+      "startLine": 1,
+      "endLine": 6,
+      "source": "memory",
+      "snippet": "# Session: 2026-05-21 12:21:24 GMT+7 - **Session Key**: agent:main:discord:direct:1085945149848297563 - **Session ID**: bf09d560-c084-431f-b74a-cf10f5d4c21e - **Source**: discord",
+      "recallCount": 7,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 3.0312782824039455,
+      "maxScore": 0.4865956455469131,
+      "firstRecalledAt": "2026-05-22T07:17:29.151Z",
+      "lastRecalledAt": "2026-05-27T07:43:05.424Z",
+      "queryHashes": [
+        "e65581a0fb9d",
+        "55715c8e46c7",
+        "f052f2e04cab",
+        "25a86f07af78",
+        "09f28a758a7f",
+        "f541616a24d7",
+        "b7468138f271"
+      ],
+      "recallDays": [
+        "2026-05-22",
+        "2026-05-27"
+      ],
+      "conceptTags": [
+        "2026-05-21-1221.md",
+        "gmt",
+        "key",
+        "agent:main:discord:direct",
+        "bf09d560",
+        "c084",
+        "431f",
+        "b74a"
+      ]
+    },
+    "memory:memory/2026-05-21-1254-2.md:1:6": {
+      "key": "memory:memory/2026-05-21-1254-2.md:1:6",
+      "path": "memory/2026-05-21-1254-2.md",
+      "startLine": 1,
+      "endLine": 6,
+      "source": "memory",
+      "snippet": "# Session: 2026-05-21 12:54:55 GMT+7 - **Session Key**: agent:main:discord:direct:1085945149848297563 - **Session ID**: a1ddd5a7-3328-408c-a0b8-e8c3d0432a4e - **Source**: discord",
+      "recallCount": 7,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 3.0393273442983624,
+      "maxScore": 0.4862833887338638,
+      "firstRecalledAt": "2026-05-22T07:17:29.151Z",
+      "lastRecalledAt": "2026-05-27T07:43:05.424Z",
+      "queryHashes": [
+        "e65581a0fb9d",
+        "55715c8e46c7",
+        "f052f2e04cab",
+        "25a86f07af78",
+        "09f28a758a7f",
+        "f541616a24d7",
+        "b7468138f271"
+      ],
+      "recallDays": [
+        "2026-05-22",
+        "2026-05-27"
+      ],
+      "conceptTags": [
+        "2026-05-21-1254-2.md",
+        "gmt",
+        "key",
+        "agent:main:discord:direct",
+        "a1ddd5a7",
+        "408c",
+        "a0b8",
+        "e8c3d0432a4e"
+      ]
+    }
+  }
+}

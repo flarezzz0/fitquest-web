@@ -1,0 +1,37 @@
+{
+  "stocks": ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "TSLA", "META"],
+  "watch_sources": [
+    {
+      "name": "Motley Fool",
+      "url": "https://www.fool.com/earnings/call-transcripts/",
+      "reliable": true,
+      "type": "earnings_transcript"
+    },
+    {
+      "name": "Seeking Alpha",
+      "url": "https://seekingalpha.com/earnings/earnings-call-transcripts",
+      "reliable": true,
+      "type": "earnings_transcript"
+    },
+    {
+      "name": "Reuters",
+      "url": "https://www.reuters.com/markets/",
+      "reliable": true,
+      "type": "news"
+    },
+    {
+      "name": "Bloomberg",
+      "url": "https://www.bloomberg.com/markets",
+      "reliable": true,
+      "type": "news"
+    }
+  ],
+  "output_dir": "/Users/chitipatsongprakon/.openclaw/workspace/stock-watch",
+  "daily_summary": true,
+  "cross_reference": true,
+  "validation": {
+    "check_multiple_sources": true,
+    "min_sources_for_fact": 2,
+    "flag_unverified": true
+  }
+}
