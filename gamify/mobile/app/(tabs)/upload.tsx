@@ -20,6 +20,18 @@ const parseDuration = (s: string): number => {
   return parseInt(s) || 0;
 };
 
+// MET-based calorie calculator
+const METS: Record<string, number> = { cardio: 8, weights: 5, walk: 3.5, yoga: 3 };
+function calcCalories(activityId: string, durationMin: number, distanceKm: number, weightKg: number): number {
+  const met = METS[activityId] || 5;
+  let cal = Math.round(met * weightKg * (durationMin / 60));
+  // ถ้ามีระยะทาง ให้ใช้ distance-based แทน (แม่นยำกว่าสำหรับ cardio/walk)
+  if ((activityId === "cardio" || activityId === "walk") && distanceKm > 0) {
+    cal = Math.round(0.75 * weightKg * distanceKm);
+  }
+  return Math.max(cal, 50); // ขั้นต่ำ 50 kcal
+}
+
 const validateInputs = (dur: string, dist: string, cal: string): string | null => {
   const mins = parseDuration(dur);
   if (mins < 5) return "⏱️ ระยะเวลาต้องอย่างน้อย 5 นาที";
@@ -42,7 +54,25 @@ export default function UploadScreen() {
   const [dist, setDist] = useState("");
   const [cal, setCal] = useState("");
   const [page, setPage] = useState<PageState>({ type: "form" });
-  const { user, streak, addCoins, addWorkout, updateStreak, backendAvailable, setBackend, workoutLog } = useStore();
+  const calUserEdited = React.useRef(false);
+  const { user, streak, addCoins, addWorkout, updateStreak, backendAvailable, setBackend, workoutLog, profile } = useStore();
+
+  // Auto-calculate calories when duration/distance/activity changes
+  useEffect(() => {
+    if (calUserEdited.current) return; // user แก้เองแล้ว ไม่เขียนทับ
+    const mins = parseDuration(dur);
+    const distKm = parseFloat(dist) || 0;
+    if (mins >= 5) {
+      const weight = profile.weight || 65;
+      const auto = calcCalories(act, mins, distKm, weight);
+      setCal(String(auto));
+    }
+  }, [act, dur, dist]);
+
+  const handleCalChange = (v: string) => {
+    calUserEdited.current = true;
+    setCal(v);
+  };
 
   useEffect(() => { if (Platform.OS === "web") ImagePicker.requestCameraPermissionsAsync().catch(() => {}); }, []);
   useEffect(() => { import("../../services/api").then(({ checkHealth }) => { checkHealth().then(() => setBackend(true)).catch(() => setBackend(false)); }); }, []);
@@ -113,7 +143,7 @@ export default function UploadScreen() {
     }
   };
 
-  const resetForm = () => { setPage({ type: "form" }); setUri(null); setDur("30"); setDist(""); setCal(""); };
+  const resetForm = () => { setPage({ type: "form" }); setUri(null); setDur("30"); setDist(""); setCal(""); calUserEdited.current = false; };
 
   // ===== RESULT SCREEN =====
   if (page.type === "result") {
@@ -195,7 +225,7 @@ export default function UploadScreen() {
 
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
           {ACTIVITIES.map((a) => (
-            <TouchableOpacity key={a.id} onPress={() => setAct(a.id)} style={[ss.act, act === a.id && ss.actActive]}>
+            <TouchableOpacity key={a.id} onPress={() => { setAct(a.id); calUserEdited.current = false; }} style={[ss.act, act === a.id && ss.actActive]}>
               <Text style={{ fontSize: 28 }}>{a.emoji}</Text><Text style={[ss.actN, act === a.id && { color: colors.primary }]}>{a.name}</Text>
               <Text style={{ fontSize: 11, color: colors.gold }}>+{a.coins} 🪙</Text>
             </TouchableOpacity>
@@ -220,7 +250,7 @@ export default function UploadScreen() {
             <TextInput style={ss.in} value={dist} onChangeText={setDist} keyboardType="decimal-pad" placeholder="5.2" placeholderTextColor={colors.textMuted} />
           </View>
           <View style={[ss.fl, { marginTop: 8 }]}><Text style={ss.flL}>🔥 แคลอรี (50 kcal ขึ้นไป)</Text>
-            <TextInput style={ss.in} value={cal} onChangeText={setCal} keyboardType="numeric" placeholder="312" placeholderTextColor={colors.textMuted} />
+            <TextInput style={ss.in} value={cal} onChangeText={handleCalChange} keyboardType="numeric" placeholder="312" placeholderTextColor={colors.textMuted} />
           </View>
         </View>
 

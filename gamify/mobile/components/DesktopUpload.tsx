@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert, StyleSheet, ActivityIndicator } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "../theme/colors";
@@ -28,7 +28,33 @@ export default function DesktopUpload() {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [done, setDone] = useState<{ coins: number; score?: number; risk?: string } | null>(null);
-  const { streak, addCoins, addWorkout, updateStreak, backendAvailable, workoutLog } = useStore();
+  const { streak, addCoins, addWorkout, updateStreak, backendAvailable, workoutLog, profile } = useStore();
+  const calUserEdited = React.useRef(false);
+
+  // MET-based calorie calculator
+  const METS: Record<string, number> = { cardio: 8, weights: 5, walk: 3.5, yoga: 3 };
+  const calcCal = (aid: string, mins: number, distKm: number, w: number) => {
+    const met = METS[aid] || 5;
+    let c = Math.round(met * w * (mins / 60));
+    if ((aid === "cardio" || aid === "walk") && distKm > 0) c = Math.round(0.75 * w * distKm);
+    return Math.max(c, 50);
+  };
+
+  // Auto-calculate
+  React.useEffect(() => {
+    if (calUserEdited.current) return;
+    const mins = parseInt(dur) || 0;
+    const distKm = parseFloat(dist) || 0;
+    if (mins >= 5) {
+      const w = profile.weight || 65;
+      setCal(String(calcCal(act, mins, distKm, w)));
+    }
+  }, [act, dur, dist]);
+
+  const handleCalChange = (v: string) => {
+    calUserEdited.current = true;
+    setCal(v);
+  };
 
   const pick = async () => {
     const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.8 });
@@ -138,7 +164,7 @@ export default function DesktopUpload() {
         <Text style={s.sectionTitle}>ประเภทกิจกรรม</Text>
         <View style={s.actGrid}>
           {ACTIVITIES.map((a) => (
-            <TouchableOpacity key={a.id} onPress={() => setAct(a.id)} style={[s.actCard, act === a.id && s.actActive]}>
+            <TouchableOpacity key={a.id} onPress={() => { setAct(a.id); calUserEdited.current = false; }} style={[s.actCard, act === a.id && s.actActive]}>
               <Text style={{ fontSize: 32 }}>{a.emoji}</Text>
               <Text style={[s.actName, act === a.id && { color: colors.primary }]}>{a.name}</Text>
               <Text style={s.actCoins}>+{a.coins} 🪙</Text>
@@ -173,7 +199,7 @@ export default function DesktopUpload() {
           <View style={s.detailGrid}>
             <View style={s.field}><Text style={s.fieldL}>⏱️ ระยะเวลา</Text><TextInput style={s.input} value={dur} onChangeText={setDur} keyboardType="numeric" placeholder="นาที" placeholderTextColor={colors.textMuted} /></View>
             <View style={s.field}><Text style={s.fieldL}>📏 ระยะทาง</Text><TextInput style={s.input} value={dist} onChangeText={setDist} keyboardType="decimal-pad" placeholder="กม." placeholderTextColor={colors.textMuted} /></View>
-            <View style={s.field}><Text style={s.fieldL}>🔥 แคลอรี</Text><TextInput style={s.input} value={cal} onChangeText={setCal} keyboardType="numeric" placeholder="kcal" placeholderTextColor={colors.textMuted} /></View>
+            <View style={s.field}><Text style={s.fieldL}>🔥 แคลอรี</Text><TextInput style={s.input} value={cal} onChangeText={handleCalChange} keyboardType="numeric" placeholder="kcal" placeholderTextColor={colors.textMuted} /></View>
           </View>
 
           {/* Agent Checks */}
