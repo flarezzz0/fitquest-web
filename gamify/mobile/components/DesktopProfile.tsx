@@ -86,9 +86,8 @@ export default function DesktopProfile() {
               const count = dayCount[key] || 0;
               const isToday = key === now.toISOString().slice(0, 10);
               return (
-                <View key={i} style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: count > 0 ? colors.primary : (isToday ? "rgba(255,255,255,0.06)" : "transparent"), borderWidth: isToday ? 1 : 0, borderColor: isToday ? colors.primary : "transparent", alignItems: "center", justifyContent: "center" }}>
-                  <Text style={{ fontSize: 12, fontWeight: count > 0 ? "700" : "400", color: count > 0 ? "#fff" : colors.textDim }}>{i + 1}</Text>
-                  {count > 0 && <Text style={{ position: "absolute", bottom: 1, fontSize: 9 }}>✅</Text>}
+                <View key={i} style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: isToday && count === 0 ? "rgba(255,255,255,0.06)" : "transparent", borderWidth: count > 0 ? 2 : (isToday ? 1 : 0), borderColor: count > 0 ? colors.success : (isToday ? "rgba(255,255,255,0.15)" : "transparent"), alignItems: "center", justifyContent: "center" }}>
+                  <Text style={{ fontSize: 12, fontWeight: count > 0 ? "700" : "400", color: count > 0 ? colors.success : (isToday ? colors.text : colors.textDim) }}>{i + 1}</Text>
                 </View>
               );
             })}
