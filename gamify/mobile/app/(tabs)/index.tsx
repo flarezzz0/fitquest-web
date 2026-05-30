@@ -32,6 +32,14 @@ export default function Dashboard() {
   // Recommended daily burn: TDEE ~ BMR * 1.375 (light activity)
   const dailyRecommend = bmr ? Math.round(bmr * 1.375) : 0;
 
+  // Today's total calories burned
+  const today = new Date().toISOString().slice(0, 10);
+  const todayCalories = workoutLog
+    .filter((l) => l.date.startsWith(today))
+    .reduce((sum, l) => sum + (l.calories || 0), 0);
+  const calPct = dailyRecommend > 0 ? Math.min(100, (todayCalories / dailyRecommend) * 100) : 0;
+  const calColor = calPct < 25 ? colors.textMuted : calPct < 60 ? colors.success : calPct < 85 ? colors.warning : colors.error;
+
   const mult = streak <= 0 ? 1 : streak <= 3 ? 1 : streak <= 7 ? 1.5 : 2;
   const expPct = totalCoinsEarned > 0 ? Math.min(100, totalCoinsEarned % 100) : 0;
   const dailyPct = Math.min(100, (todayCount / 5) * 100);
@@ -84,18 +92,30 @@ export default function Dashboard() {
 
         {/* BMR / Calorie Recommend */}
         {bmr > 0 ? (
-          <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
-            <View style={[s.dc, { flex: 1 }]}>
-              <Text style={{ fontSize: 11, color: colors.textDim }}>🔥 BMR</Text>
-              <Text style={{ fontSize: 16, fontWeight: "700", color: colors.success }}>{bmr} kcal</Text>
+          <View style={{ marginTop: 8 }}>
+            <View style={{ flexDirection: "row", gap: 6, alignItems: "center" }}>
+              <View style={{ flex: 1, alignItems: "center", backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 10, padding: 8, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
+                <Text style={{ fontSize: 9, color: colors.textDim }}>🔥 BMR</Text>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: colors.success }}>{bmr}</Text>
+              </View>
+              <View style={{ flex: 1, alignItems: "center", backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 10, padding: 8, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
+                <Text style={{ fontSize: 9, color: colors.textDim }}>📏 BMI</Text>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: colors.primary }}>{bmi}</Text>
+              </View>
+              <View style={{ flex: 1, alignItems: "center", backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 10, padding: 8, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
+                <Text style={{ fontSize: 9, color: colors.textDim }}>🎯 TDEE</Text>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: colors.gold }}>{dailyRecommend}</Text>
+              </View>
             </View>
-            <View style={[s.dc, { flex: 1 }]}>
-              <Text style={{ fontSize: 11, color: colors.textDim }}>📏 BMI</Text>
-              <Text style={{ fontSize: 16, fontWeight: "700", color: colors.primary }}>{bmi}</Text>
-            </View>
-            <View style={[s.dc, { flex: 1 }]}>
-              <Text style={{ fontSize: 11, color: colors.textDim }}>🎯 แนะนำ</Text>
-              <Text style={{ fontSize: 16, fontWeight: "700", color: colors.gold }}>{dailyRecommend} kcal</Text>
+            {/* Calorie Progress */}
+            <View style={{ marginTop: 6, backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 10, padding: 10, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 4 }}>
+                <Text style={{ fontSize: 10, color: colors.textDim }}>🔥 Calories</Text>
+                <Text style={{ fontSize: 11, fontWeight: "700", color: calColor }}>{todayCalories.toLocaleString()} / {dailyRecommend.toLocaleString()} kcal</Text>
+              </View>
+              <View style={{ width: "100%", height: 6, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
+                <View style={{ height: "100%", borderRadius: 3, width: `${calPct}%`, backgroundColor: calColor }} />
+              </View>
             </View>
           </View>
         ) : null}

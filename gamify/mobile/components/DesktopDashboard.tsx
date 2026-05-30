@@ -25,6 +25,14 @@ export default function DesktopDashboard() {
   const bmi = profile.weight && profile.height ? calcBMI(profile.weight, profile.height) : 0;
   const dailyRecommend = bmr ? Math.round(bmr * 1.375) : 0;
 
+  // Today's total calories
+  const today = new Date().toISOString().slice(0, 10);
+  const todayCalories = workoutLog
+    .filter((l) => l.date.startsWith(today))
+    .reduce((sum, l) => sum + (l.calories || 0), 0);
+  const calPct = dailyRecommend > 0 ? Math.min(100, (todayCalories / dailyRecommend) * 100) : 0;
+  const calColor = calPct < 25 ? colors.textMuted : calPct < 60 ? colors.success : calPct < 85 ? colors.warning : colors.error;
+
   return (
     <>
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -61,20 +69,29 @@ export default function DesktopDashboard() {
         </View>
       </View>
 
-      {/* BMR Row */}
+      {/* BMR Row + Calorie Progress */}
       {bmr > 0 && (
-        <View style={{ flexDirection: "row", gap: 16, marginBottom: 28 }}>
-          <View style={[styles.statCard]}>
+        <View style={{ flexDirection: "row", gap: 16, marginBottom: 24 }}>
+          <View style={[styles.statCard, { flex: 1 }]}>
             <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>🔥 BMR</Text>
-            <Text style={{ fontSize: 24, fontWeight: "700", color: colors.success }}>{bmr} kcal</Text>
+            <Text style={{ fontSize: 22, fontWeight: "700", color: colors.success }}>{bmr}</Text>
           </View>
-          <View style={[styles.statCard]}>
+          <View style={[styles.statCard, { flex: 1 }]}>
             <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>📏 BMI</Text>
-            <Text style={{ fontSize: 24, fontWeight: "700", color: colors.primary }}>{bmi}</Text>
+            <Text style={{ fontSize: 22, fontWeight: "700", color: colors.primary }}>{bmi}</Text>
           </View>
-          <View style={[styles.statCard]}>
-            <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>🎯 แนะนำต่อวัน</Text>
-            <Text style={{ fontSize: 24, fontWeight: "700", color: colors.gold }}>{dailyRecommend} kcal</Text>
+          <View style={[styles.statCard, { flex: 1 }]}>
+            <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>🎯 TDEE</Text>
+            <Text style={{ fontSize: 22, fontWeight: "700", color: colors.gold }}>{dailyRecommend}</Text>
+          </View>
+          <View style={[styles.statCard, { flex: 2 }]}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
+              <Text style={{ fontSize: 11, color: colors.textDim }}>🔥 Calories วันนี้</Text>
+              <Text style={{ fontSize: 13, fontWeight: "700", color: calColor }}>{todayCalories.toLocaleString()} / {dailyRecommend.toLocaleString()}</Text>
+            </View>
+            <View style={{ width: "100%", height: 8, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+              <View style={{ height: "100%", borderRadius: 4, width: `${calPct}%`, backgroundColor: calColor }} />
+            </View>
           </View>
         </View>
       )}
