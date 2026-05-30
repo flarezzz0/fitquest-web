@@ -207,7 +207,7 @@ export default function Dashboard() {
           ) : workoutLog.slice(0, isDesktop ? 8 : 5).map((log, i) => (
             <View key={i} style={[s.recentItem, isDesktop && { width: "48%", padding: 14 }]}>
               <Text style={{ fontSize: isDesktop ? 20 : 16 }}>
-                {log.activity === "คาร์ดิโอ" ? "🏃" : log.activity === "เวทเทรนนิ่ง" ? "🏋️" : log.activity === "เดินทั่วไป" ? "🚶" : "🧘"}
+                {log.activity === "คาร์ดิโอ" ? "🏃" : log.activity === "เวทเทรนนิ่ง" ? "🏋️" : log.activity === "เดินทั่วไป" ? "🚶" : log.activity === "HIIT" ? "💥" : log.activity === "ว่ายน้ำ" ? "🏊" : "🧘"}
               </Text>
               <Text style={{ flex: 1, fontSize: isDesktop ? 14 : 12, fontWeight: "500", color: colors.text }}>{log.activity}</Text>
               <Text style={{ fontSize: isDesktop ? 14 : 12, fontWeight: "700", color: colors.gold }}>+{log.coins}🪙</Text>

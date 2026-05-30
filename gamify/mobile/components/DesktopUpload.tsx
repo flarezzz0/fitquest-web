@@ -7,10 +7,14 @@ import { uploadActivity } from "../services/api";
 
 const ACTIVITIES = [
   { id: "cardio", emoji: "🏃", name: "คาร์ดิโอ", coins: 10 },
-  { id: "weights", emoji: "🏋️", name: "เวทเทรนนิ่ง", coins: 12 },
   { id: "walk", emoji: "🚶", name: "เดินทั่วไป", coins: 3 },
+  { id: "weights", emoji: "🏋️", name: "เวทเทรนนิ่ง", coins: 12 },
+  { id: "hiit", emoji: "💥", name: "HIIT", coins: 14 },
+  { id: "swim", emoji: "🏊", name: "ว่ายน้ำ", coins: 10 },
   { id: "yoga", emoji: "🧘", name: "โยคะ/ยืด", coins: 6 },
 ];
+
+const SHOW_DISTANCE = ["cardio", "walk"];
 
 const CHECKS = [
   { id: "moderation", label: "👮 ตรวจ Content", desc: "ตรวจรูปไม่เหมาะสม" },
@@ -31,12 +35,29 @@ export default function DesktopUpload() {
   const { streak, addCoins, addWorkout, updateStreak, backendAvailable, workoutLog, profile, questProgress } = useStore();
   const calUserEdited = React.useRef(false);
 
-  // MET-based calorie calculator
-  const METS: Record<string, number> = { cardio: 8, weights: 5, walk: 3.5, yoga: 3 };
+  // MET-based calorie calculator (2024 Compendium)
   const calcCal = (aid: string, mins: number, distKm: number, w: number) => {
-    const met = METS[aid] || 5;
-    let c = Math.round(met * w * (mins / 60));
-    if ((aid === "cardio" || aid === "walk") && distKm > 0) c = Math.round(0.75 * w * distKm);
+    if (mins <= 0) return 0;
+    const kg = w || 65;
+    let met: number;
+    if (aid === "cardio" && distKm > 0) {
+      const pace = mins / distKm;
+      met = pace <= 5 ? 11.0 : pace <= 7 ? 8.3 : 6.0;
+    } else if (aid === "cardio") met = 8.0;
+    else if (aid === "walk" && distKm > 0) {
+      const pace = mins / distKm;
+      met = pace >= 15 ? 2.5 : pace >= 12 ? 3.5 : 4.3;
+    } else if (aid === "walk") met = 3.5;
+    else if (aid === "weights") met = 5.0;
+    else if (aid === "yoga") met = 3.0;
+    else if (aid === "hiit") met = 8.0;
+    else if (aid === "swim") met = 6.0;
+    else met = 5.0;
+
+    let c = Math.round((met * 3.5 * kg * mins) / 200);
+    if ((aid === "cardio" || aid === "walk") && distKm > 0) {
+      c += Math.round(0.75 * kg * distKm);
+    }
     return Math.max(c, 50);
   };
 
@@ -137,7 +158,7 @@ export default function DesktopUpload() {
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
             <View style={{ alignItems: "center", minWidth: 80 }}>
               <Text style={{ fontSize: 28 }}>
-                {done.activityId === "cardio" ? "🏃" : done.activityId === "weights" ? "🏋️" : done.activityId === "walk" ? "🚶" : "🧘"}
+                {done.activityId === "cardio" ? "🏃" : done.activityId === "weights" ? "🏋️" : done.activityId === "walk" ? "🚶" : done.activityId === "hiit" ? "💥" : done.activityId === "swim" ? "🏊" : "🧘"}
               </Text>
               <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginTop: 4 }}>{done.activity}</Text>
             </View>
@@ -263,7 +284,9 @@ export default function DesktopUpload() {
           <Text style={s.sectionTitle}>รายละเอียด</Text>
           <View style={s.detailGrid}>
             <View style={s.field}><Text style={s.fieldL}>⏱️ ระยะเวลา</Text><TextInput style={s.input} value={dur} onChangeText={setDur} keyboardType="numeric" placeholder="นาที" placeholderTextColor={colors.textMuted} /></View>
+            {SHOW_DISTANCE.includes(act) && (
             <View style={s.field}><Text style={s.fieldL}>📏 ระยะทาง</Text><TextInput style={s.input} value={dist} onChangeText={setDist} keyboardType="decimal-pad" placeholder="กม." placeholderTextColor={colors.textMuted} /></View>
+            )}
             <View style={s.field}><Text style={s.fieldL}>🔥 แคลอรี</Text><TextInput style={s.input} value={cal} onChangeText={handleCalChange} keyboardType="numeric" placeholder="kcal" placeholderTextColor={colors.textMuted} /></View>
           </View>
 

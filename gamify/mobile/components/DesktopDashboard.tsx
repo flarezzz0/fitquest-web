@@ -132,7 +132,7 @@ export default function DesktopDashboard() {
           ) : workoutLog.slice(0, 6).map((log, i) => (
             <View key={i} style={styles.recentRow}>
               <Text style={{ fontSize: 20 }}>
-                {log.activity === "คาร์ดิโอ" ? "🏃" : log.activity === "เวทเทรนนิ่ง" ? "🏋️" : log.activity === "เดินทั่วไป" ? "🚶" : "🧘"}
+                {log.activity === "คาร์ดิโอ" ? "🏃" : log.activity === "เวทเทรนนิ่ง" ? "🏋️" : log.activity === "เดินทั่วไป" ? "🚶" : log.activity === "HIIT" ? "💥" : log.activity === "ว่ายน้ำ" ? "🏊" : "🧘"}
               </Text>
               <View style={styles.recentInfo}>
                 <Text style={styles.recentName}>{log.activity}</Text>

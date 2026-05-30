@@ -9,10 +9,15 @@ import { runClientAntiCheat } from "../../services/antiCheat";
 
 const ACTIVITIES = [
   { id: "cardio", emoji: "🏃", name: "คาร์ดิโอ", coins: 10 },
-  { id: "weights", emoji: "🏋️", name: "เวทเทรนนิ่ง", coins: 12 },
   { id: "walk", emoji: "🚶", name: "เดินทั่วไป", coins: 3 },
+  { id: "weights", emoji: "🏋️", name: "เวทเทรนนิ่ง", coins: 12 },
+  { id: "hiit", emoji: "💥", name: "HIIT", coins: 14 },
+  { id: "swim", emoji: "🏊", name: "ว่ายน้ำ", coins: 10 },
   { id: "yoga", emoji: "🧘", name: "โยคะ/ยืด", coins: 6 },
 ];
+
+// กิจกรรมที่มีระยะทาง (cardio/walk)
+const SHOW_DISTANCE = ["cardio", "walk"];
 
 const parseDuration = (s: string): number => {
   if (!s) return 0;
@@ -20,16 +25,34 @@ const parseDuration = (s: string): number => {
   return parseInt(s) || 0;
 };
 
-// MET-based calorie calculator
-const METS: Record<string, number> = { cardio: 8, weights: 5, walk: 3.5, yoga: 3 };
+// MET-based calorie calculator (2024 Compendium)
 function calcCalories(activityId: string, durationMin: number, distanceKm: number, weightKg: number): number {
-  const met = METS[activityId] || 5;
-  let cal = Math.round(met * weightKg * (durationMin / 60));
-  // ถ้ามีระยะทาง ให้ใช้ distance-based แทน (แม่นยำกว่าสำหรับ cardio/walk)
+  if (durationMin <= 0) return 0;
+  const w = weightKg || 65;
+  let met: number;
+  if (activityId === "cardio" && distanceKm > 0) {
+    const pace = durationMin / distanceKm;
+    met = pace <= 5 ? 11.0 : pace <= 7 ? 8.3 : 6.0;
+  } else if (activityId === "cardio") {
+    met = 8.0;
+  } else if (activityId === "walk" && distanceKm > 0) {
+    const pace = durationMin / distanceKm;
+    met = pace >= 15 ? 2.5 : pace >= 12 ? 3.5 : 4.3;
+  } else if (activityId === "walk") {
+    met = 3.5;
+  } else if (activityId === "weights") met = 5.0;
+  else if (activityId === "yoga") met = 3.0;
+  else if (activityId === "hiit") met = 8.0;
+  else if (activityId === "swim") met = 6.0;
+  else met = 5.0;
+
+  // calories = (MET x 3.5 x weight x duration) / 200
+  let cal = Math.round((met * 3.5 * w * durationMin) / 200);
+  // cardio/walk ที่มีระยะทาง -> บวก extra
   if ((activityId === "cardio" || activityId === "walk") && distanceKm > 0) {
-    cal = Math.round(0.75 * weightKg * distanceKm);
+    cal += Math.round(0.75 * w * distanceKm);
   }
-  return Math.max(cal, 50); // ขั้นต่ำ 50 kcal
+  return Math.max(cal, 50);
 }
 
 const validateInputs = (dur: string, dist: string, cal: string): string | null => {
@@ -168,7 +191,7 @@ export default function UploadScreen() {
                 <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 6 }}>📝 กิจกรรมที่บันทึก</Text>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
                   <Text style={{ fontSize: 28 }}>
-                    {page.activityId === "cardio" ? "🏃" : page.activityId === "weights" ? "🏋️" : page.activityId === "walk" ? "🚶" : "🧘"}
+                    {page.activityId === "cardio" ? "🏃" : page.activityId === "weights" ? "🏋️" : page.activityId === "walk" ? "🚶" : page.activityId === "hiit" ? "💥" : page.activityId === "swim" ? "🏊" : "🧘"}
                   </Text>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text }}>{page.activity}</Text>
@@ -299,9 +322,11 @@ export default function UploadScreen() {
           <View style={ss.fl}><Text style={ss.flL}>⏱️ ระยะเวลา (นาที หรือ ชม:นาที เช่น 1:30)</Text>
             <TextInput style={ss.in} value={dur} onChangeText={setDur} keyboardType="default" placeholder="30" placeholderTextColor={colors.textMuted} />
           </View>
+          {SHOW_DISTANCE.includes(act) && (
           <View style={[ss.fl, { marginTop: 8 }]}><Text style={ss.flL}>📏 ระยะทาง (กม. เช่น 0.1-100)</Text>
             <TextInput style={ss.in} value={dist} onChangeText={setDist} keyboardType="decimal-pad" placeholder="5.2" placeholderTextColor={colors.textMuted} />
           </View>
+          )}
           <View style={[ss.fl, { marginTop: 8 }]}><Text style={ss.flL}>🔥 แคลอรี (50 kcal ขึ้นไป)</Text>
             <TextInput style={ss.in} value={cal} onChangeText={handleCalChange} keyboardType="numeric" placeholder="312" placeholderTextColor={colors.textMuted} />
           </View>
