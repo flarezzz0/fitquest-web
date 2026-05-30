@@ -13,7 +13,10 @@ export default function Dashboard() {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width >= 768;
   const { coins, level, totalCoinsEarned, streak, frozenUsed, totalWorkouts, todayCount, weekCount, workoutLog, questProgress, setBackend, user, profile, setProfile } = useStore();
-  useEffect(() => { checkHealth().then(() => setBackend(true)).catch(() => {}); }, []);
+  useEffect(() => {
+    if (Platform.OS === "web") return; // web ไม่มี backend
+    checkHealth().then(() => setBackend(true)).catch(() => {});
+  }, []);
 
   // First-time setup
   const [showSetup, setShowSetup] = useState(false);

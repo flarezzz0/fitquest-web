@@ -75,7 +75,10 @@ export default function UploadScreen() {
   };
 
   useEffect(() => { if (Platform.OS === "web") ImagePicker.requestCameraPermissionsAsync().catch(() => {}); }, []);
-  useEffect(() => { import("../../services/api").then(({ checkHealth }) => { checkHealth().then(() => setBackend(true)).catch(() => setBackend(false)); }); }, []);
+  useEffect(() => {
+    if (Platform.OS === "web") return; // web ไม่มี backend
+    import("../../services/api").then(({ checkHealth }) => { checkHealth().then(() => setBackend(true)).catch(() => setBackend(false)); });
+  }, []);
 
   const pick = useCallback(async () => { const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.8 }); if (!r.canceled) setUri(r.assets[0].uri); }, []);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
