@@ -11,7 +11,7 @@ export const api = axios.create({
 });
 
 export const checkHealth = () => {
-  if (Platform.OS === "web") return Promise.resolve(null); // web ไม่มี backend
+  if (Platform.OS === "web") return Promise.reject(new Error("no backend on web"));
   return api.get("/health");
 };
 export const uploadActivity = (formData: FormData) =>
