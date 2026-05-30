@@ -100,12 +100,12 @@ export const useStore = create<AppState>((set, get) => ({
       const { data } = await supabase.from("users").select("*").eq("id", u.id).single();
       if (data) {
         set({
-          coins: data.coins ?? get().coins,
-          totalCoinsEarned: data.total_coins_earned ?? get().totalCoinsEarned,
-          streak: data.streak ?? get().streak,
-          longestStreak: data.longest_streak ?? get().longestStreak,
-          totalWorkouts: data.total_workouts ?? get().totalWorkouts,
-          level: data.level ?? get().level,
+          coins: Math.max(data.coins ?? 0, get().coins),
+          totalCoinsEarned: Math.max(data.total_coins_earned ?? 0, get().totalCoinsEarned),
+          streak: Math.max(data.streak ?? 0, get().streak),
+          longestStreak: Math.max(data.longest_streak ?? 0, get().longestStreak),
+          totalWorkouts: Math.max(data.total_workouts ?? 0, get().totalWorkouts),
+          level: Math.max(data.level ?? 1, get().level),
           profile: {
             weight: data.weight ?? get().profile.weight,
             height: data.height ?? get().profile.height,
