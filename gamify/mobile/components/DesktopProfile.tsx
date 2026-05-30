@@ -120,6 +120,35 @@ export default function DesktopProfile() {
         </TouchableOpacity>
       </View>
 
+      {/* Language & Theme Toggles */}
+      <View style={{ flexDirection: "row", gap: 12, marginBottom: 20 }}>
+        <TouchableOpacity
+          style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, padding: 14, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, borderRadius: 12 }}
+          onPress={() => {
+            const { language, setLanguage } = useStore.getState();
+            setLanguage(language === "th" ? "en" : "th");
+          }}>
+          <Text style={{ fontSize: 18 }}>🌐</Text>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>
+            {useStore.getState().language === "th" ? "TH" : "EN"}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, padding: 14, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, borderRadius: 12 }}
+          onPress={() => {
+            const { themeMode, setThemeMode } = useStore.getState();
+            const next = themeMode === "dark" ? "light" : themeMode === "light" ? "system" : "dark";
+            setThemeMode(next);
+          }}>
+          <Text style={{ fontSize: 18 }}>
+            {useStore.getState().themeMode === "dark" ? "🌙" : useStore.getState().themeMode === "light" ? "☀️" : "📱"}
+          </Text>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>
+            {useStore.getState().themeMode === "dark" ? "Dark" : useStore.getState().themeMode === "light" ? "Light" : "System"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Recent Activity */}
       <Text style={s.sectionTitle}>📸 กิจกรรมล่าสุด</Text>
       {workoutLog.filter((l) => l.imageUri).length === 0 ? (

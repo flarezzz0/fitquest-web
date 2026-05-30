@@ -51,6 +51,8 @@ export interface AppState {
   lastDailyReset: string;  // ISO date of last daily quest/shop reset
   lastWeeklyReset: string; // ISO date of last weekly reset
   _hydrated: boolean;
+  language: "th" | "en";
+  themeMode: "dark" | "light" | "system";
   setUser: (u: UserInfo | null) => void;
   setBackend: (b: boolean) => void;
   setProfile: (p: UserProfile) => void;
@@ -65,6 +67,8 @@ export interface AppState {
   checkDailyReset: () => void;
   checkWeeklyReset: () => void;
   clearAllData: () => void;
+  setLanguage: (lang: "th" | "en") => void;
+  setThemeMode: (mode: "dark" | "light" | "system") => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -87,6 +91,8 @@ export const useStore = create<AppState>((set, get) => ({
   lastVerification: null,
   lastDailyReset: "",
   lastWeeklyReset: "",
+  language: "th",
+  themeMode: "system",
   _hydrated: false,
 
   setUser: async (u) => {
@@ -257,6 +263,8 @@ export const useStore = create<AppState>((set, get) => ({
     const last = get().lastWeeklyReset;
     if (!last || new Date(last).getTime() < reset) set({ lastWeeklyReset: new Date(reset).toISOString() });
   },
+  setLanguage: (lang) => set({ language: lang }),
+  setThemeMode: (mode) => set({ themeMode: mode }),
   clearAllData: () => {
     set((s) => ({
       coins: 0, totalCoinsEarned: 0, streak: 0, longestStreak: 0,
