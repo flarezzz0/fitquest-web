@@ -150,29 +150,29 @@ export default function ProfileScreen() {
           ))}
         </Animated.View>
 
-        {/* Activity Calendar */}
+        {/* Activity Calendar — compact */}
         <Animated.View style={{ opacity: pageFade }}>
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <Text style={{ fontSize: 15, fontWeight: "700", color: colors.text }}>📊 Activity Calendar</Text>
-            <Text style={{ fontSize: 11, color: colors.primary }}>{monthName}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+            <Text style={{ fontSize: 14, fontWeight: "700", color: colors.text }}>📊 Activity Calendar</Text>
+            <Text style={{ fontSize: 10, color: colors.primary }}>{monthName}</Text>
           </View>
-          <View style={styles.glassCard}>
-            {/* Stats row */}
-            <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 14 }}>
-              <View style={{ alignItems: "center" }}><Text style={{ fontSize: 20, fontWeight: "900", color: colors.gold }}>{activeDays}</Text><Text style={{ fontSize: 9, color: colors.textDim }}>Active</Text></View>
-              <View style={{ alignItems: "center" }}><Text style={{ fontSize: 20, fontWeight: "900", color: colors.error }}>{streak || 0}</Text><Text style={{ fontSize: 9, color: colors.textDim }}>🔥 Streak</Text></View>
-              <View style={{ alignItems: "center" }}><Text style={{ fontSize: 20, fontWeight: "900", color: colors.success }}>{longestStreak}</Text><Text style={{ fontSize: 9, color: colors.textDim }}>Best</Text></View>
-              <View style={{ alignItems: "center" }}><Text style={{ fontSize: 20, fontWeight: "900", color: colors.primary }}>{monthPct}%</Text><Text style={{ fontSize: 9, color: colors.textDim }}>Month</Text></View>
+          <View style={[styles.glassCard, { padding: 12 }]}>
+            {/* Stats row — compact */}
+            <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 8 }}>
+              <View style={{ alignItems: "center" }}><Text style={{ fontSize: 14, fontWeight: "800", color: colors.gold }}>{activeDays}</Text><Text style={{ fontSize: 8, color: colors.textDim }}>วัน</Text></View>
+              <View style={{ alignItems: "center" }}><Text style={{ fontSize: 14, fontWeight: "800", color: colors.error }}>{streak || 0}</Text><Text style={{ fontSize: 8, color: colors.textDim }}>🔥</Text></View>
+              <View style={{ alignItems: "center" }}><Text style={{ fontSize: 14, fontWeight: "800", color: colors.success }}>{longestStreak}</Text><Text style={{ fontSize: 8, color: colors.textDim }}>Best</Text></View>
+              <View style={{ alignItems: "center" }}><Text style={{ fontSize: 14, fontWeight: "800", color: colors.primary }}>{monthPct}%</Text><Text style={{ fontSize: 8, color: colors.textDim }}>เดือน</Text></View>
             </View>
             {/* Calendar Grid */}
-            <View style={{ paddingVertical: 4 }}>
-              <View style={{ flexDirection: "row", gap: 4, marginBottom: 6, justifyContent: "center" }}>
+            <View style={{ paddingVertical: 2 }}>
+              <View style={{ flexDirection: "row", gap: 4, marginBottom: 4, justifyContent: "center" }}>
                 {["อา","จ","อ","พ","พฤ","ศ","ส"].map((d, i) => (
-                  <View key={i} style={{ width: 32, alignItems: "center" }}><Text style={{ fontSize: 10, color: colors.textMuted, fontWeight: "600" }}>{d}</Text></View>
+                  <View key={i} style={{ width: 28, alignItems: "center" }}><Text style={{ fontSize: 9, color: colors.textMuted, fontWeight: "600" }}>{d}</Text></View>
                 ))}
               </View>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 4, justifyContent: "flex-start" }}>
-                {Array.from({ length: firstDay }).map((_, i) => <View key={`e${i}`} style={{ width: 32, height: 32 }} />)}
+                {Array.from({ length: firstDay }).map((_, i) => <View key={`e${i}`} style={{ width: 28, height: 28 }} />)}
                 {Array.from({ length: dim }, (_, i) => {
                   const d = new Date(now.getFullYear(), now.getMonth(), i + 1);
                   const key = d.toISOString().slice(0, 10);
@@ -180,20 +180,20 @@ export default function ProfileScreen() {
                   const isToday = key === now.toISOString().slice(0, 10);
                   return (
                     <View key={i} style={{
-                      width: 32, height: 32, borderRadius: 8,
+                      width: 28, height: 28, borderRadius: 6,
                       backgroundColor: isToday && count === 0 ? "rgba(255,255,255,0.06)" : "transparent",
                       borderWidth: count > 0 ? 2 : (isToday ? 1 : 0),
                       borderColor: count > 0 ? colors.success : (isToday ? "rgba(255,255,255,0.15)" : "transparent"),
                       alignItems: "center", justifyContent: "center",
                     }}>
-                      <Text style={{ fontSize: 11, fontWeight: count > 0 ? "700" : "400", color: count > 0 ? colors.success : (isToday ? colors.text : colors.textDim) }}>{i + 1}</Text>
+                      <Text style={{ fontSize: 10, fontWeight: count > 0 ? "700" : "400", color: count > 0 ? colors.success : (isToday ? colors.text : colors.textDim) }}>{i + 1}</Text>
                     </View>
                   );
                 })}
               </View>
             </View>
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", marginTop: 8 }}>
-              <Text style={{ fontSize: 10, color: colors.textMuted }}>วันนี้: {now.toLocaleDateString("th-TH", { weekday: "long" })}{todayCount > 0 ? " ✅ ทำแล้ว" : ""}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", marginTop: 4 }}>
+              <Text style={{ fontSize: 9, color: colors.textMuted }}>วันนี้: {now.toLocaleDateString("th-TH", { weekday: "long" })}{todayCount > 0 ? " ✅" : ""}</Text>
             </View>
           </View>
         </Animated.View>
@@ -260,32 +260,45 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         {user ? (<>
-        {/* Verification History */}
-        <Text style={{ fontSize: 14, fontWeight: "700", color: colors.text, marginVertical: 8 }}>📸 ประวัติการตรวจสอบ</Text>
+        {/* Recent Activity Gallery */}
+        <Text style={{ fontSize: 14, fontWeight: "700", color: colors.text, marginTop: 10, marginBottom: 6 }}>📸 กิจกรรมล่าสุด</Text>
         {workoutLog.filter((l) => l.imageUri).length === 0 ? (
-          <View style={{ padding: 14, backgroundColor: "rgba(26,26,46,0.85)", borderRadius: 12, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)", alignItems: "center" }}>
-            <Text style={{ fontSize: 12, color: colors.textDim }}>ยังไม่มีประวัติ 📸</Text>
+          <View style={{ padding: 30, backgroundColor: "rgba(26,26,46,0.85)", borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)", alignItems: "center" }}>
+            <Text style={{ fontSize: 32, marginBottom: 8 }}>🏃</Text>
+            <Text style={{ fontSize: 13, color: colors.textDim }}>ยังไม่มีประวัติ — เริ่มออกกำลังกายครั้งแรก!</Text>
           </View>
-        ) : workoutLog.filter((l) => l.imageUri).slice(0, 10).map((l, i) => (
-          <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "rgba(26,26,46,0.85)", borderWidth: 1, borderColor: "rgba(255,255,255,0.06)", borderRadius: 10, padding: 8, marginBottom: 4 }}>
-            {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: 40, height: 40, borderRadius: 6 }} /> :
-              <View style={{ width: 40, height: 40, borderRadius: 6, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 11, fontWeight: "600", color: colors.text }}>{l.activity}</Text>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 4, marginTop: 2 }}>
-                <Text style={{ fontSize: 9, color: colors.gold }}>+{l.coins}🪙</Text>
-                {l.duration ? <Text style={{ fontSize: 9, color: colors.textDim }}>⏱️{l.duration}น</Text> : null}
-                {l.distance ? <Text style={{ fontSize: 9, color: colors.textDim }}>📏{l.distance}กม</Text> : null}
-                {l.calories ? <Text style={{ fontSize: 9, color: colors.textDim }}>🔥{l.calories}kcal</Text> : null}
+        ) : (
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+            {workoutLog.filter((l) => l.imageUri).slice(0, 6).map((l, i) => (
+              <View key={i} style={{ width: "48%", backgroundColor: "rgba(26,26,46,0.85)", borderRadius: 12, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                <View style={{ aspectRatio: 1, width: "100%" }}>
+                  {l.imageUri ? (
+                    <Image source={{ uri: l.imageUri }} style={{ width: "100%", height: "100%" }} />
+                  ) : (
+                    <View style={{ width: "100%", height: "100%", backgroundColor: "rgba(255,255,255,0.04)", alignItems: "center", justifyContent: "center" }}>
+                      <Text style={{ fontSize: 32 }}>🏃</Text>
+                    </View>
+                  )}
+                </View>
+                <View style={{ padding: 8, gap: 2 }}>
+                  <Text style={{ fontSize: 11, fontWeight: "600", color: colors.text }}>
+                    {l.activity === "คาร์ดิโอ" ? "🏃 " : l.activity === "เวทเทรนนิ่ง" ? "🏋️ " : l.activity === "เดินทั่วไป" ? "🚶 " : l.activity === "HIIT" ? "💥 " : l.activity === "ว่ายน้ำ" ? "🏊 " : "🧘 "}
+                    {l.activity}
+                  </Text>
+                  <View style={{ flexDirection: "row", gap: 6 }}>
+                    {l.duration ? <Text style={{ fontSize: 9, color: colors.textDim }}>⏱️ {l.duration}น</Text> : null}
+                    {l.calories ? <Text style={{ fontSize: 9, color: colors.gold }}>🔥 {l.calories}</Text> : null}
+                    <Text style={{ fontSize: 9, color: colors.gold }}>+{l.coins}🪙</Text>
+                  </View>
+                  <Text style={{ fontSize: 8, color: colors.textMuted }}>{new Date(l.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}</Text>
+                </View>
               </View>
-              <View style={{ flexDirection: "row", gap: 6, marginTop: 1 }}>
-                <Text style={{ fontSize: 9, color: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }}>🛡️ {l.fraudScore ?? 0}</Text>
-                {l.riskLevel === "high" && <Text style={{ fontSize: 9, color: colors.error }}>⚠️ เสี่ยง</Text>}
-              </View>
-            </View>
-            <Text style={{ fontSize: 16 }}>{l.verified ? "✅" : "⏳"}</Text>
+            ))}
           </View>
-        ))}
+        )}
+        <TouchableOpacity style={{ marginTop: 8, padding: 10, backgroundColor: "rgba(255,255,255,0.04)", borderRadius: 10, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)", alignItems: "center" }}>
+          <Text style={{ fontSize: 11, fontWeight: "600", color: colors.textDim }}>📋 ดูประวัติทั้งหมด</Text>
+        </TouchableOpacity>
         </>) : null}
         <View style={{ height: 40 }} />
       </ScrollView>

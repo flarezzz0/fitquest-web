@@ -65,38 +65,38 @@ export default function DesktopProfile() {
         ))}
       </View>
 
-      {/* Calendar Grid — matches mobile */}
-      <Text style={s.sectionTitle}>📊 Activity Calendar — {monthName}</Text>
-      <View style={s.glassCard}>
-        <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 16 }}>
-          <View style={{ alignItems: "center" }}><Text style={{ fontSize: 22, fontWeight: "900", color: colors.gold }}>{activeDays}</Text><Text style={{ fontSize: 10, color: colors.textDim }}>Active</Text></View>
-          <View style={{ alignItems: "center" }}><Text style={{ fontSize: 22, fontWeight: "900", color: colors.error }}>{streak || 0}</Text><Text style={{ fontSize: 10, color: colors.textDim }}>🔥 Streak</Text></View>
-          <View style={{ alignItems: "center" }}><Text style={{ fontSize: 22, fontWeight: "900", color: colors.success }}>{longestStreak}</Text><Text style={{ fontSize: 10, color: colors.textDim }}>Best</Text></View>
-          <View style={{ alignItems: "center" }}><Text style={{ fontSize: 22, fontWeight: "900", color: colors.primary }}>{monthPct}%</Text><Text style={{ fontSize: 10, color: colors.textDim }}>Month</Text></View>
+      {/* Calendar Grid — compact */}
+      <Text style={[s.sectionTitle, { marginBottom: 8 }]}>📊 Activity Calendar — {monthName}</Text>
+      <View style={[s.glassCard, { padding: 14 }]}>
+        <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 10 }}>
+          <View style={{ alignItems: "center" }}><Text style={{ fontSize: 16, fontWeight: "800", color: colors.gold }}>{activeDays}</Text><Text style={{ fontSize: 9, color: colors.textDim }}>วัน</Text></View>
+          <View style={{ alignItems: "center" }}><Text style={{ fontSize: 16, fontWeight: "800", color: colors.error }}>{streak || 0}</Text><Text style={{ fontSize: 9, color: colors.textDim }}>🔥</Text></View>
+          <View style={{ alignItems: "center" }}><Text style={{ fontSize: 16, fontWeight: "800", color: colors.success }}>{longestStreak}</Text><Text style={{ fontSize: 9, color: colors.textDim }}>Best</Text></View>
+          <View style={{ alignItems: "center" }}><Text style={{ fontSize: 16, fontWeight: "800", color: colors.primary }}>{monthPct}%</Text><Text style={{ fontSize: 9, color: colors.textDim }}>เดือน</Text></View>
         </View>
-        <View style={{ paddingVertical: 4 }}>
-          <View style={{ flexDirection: "row", gap: 6, marginBottom: 8, justifyContent: "center" }}>
+        <View style={{ paddingVertical: 2 }}>
+          <View style={{ flexDirection: "row", gap: 4, marginBottom: 6, justifyContent: "center" }}>
             {["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((d, i) => (
-              <View key={i} style={{ width: 36, alignItems: "center" }}><Text style={{ fontSize: 11, color: colors.textMuted, fontWeight: "600" }}>{d}</Text></View>
+              <View key={i} style={{ width: 32, alignItems: "center" }}><Text style={{ fontSize: 10, color: colors.textMuted, fontWeight: "600" }}>{d}</Text></View>
             ))}
           </View>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, justifyContent: "flex-start" }}>
-            {Array.from({ length: firstDay }).map((_, i) => <View key={`e${i}`} style={{ width: 36, height: 36 }} />)}
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 4, justifyContent: "flex-start" }}>
+            {Array.from({ length: firstDay }).map((_, i) => <View key={`e${i}`} style={{ width: 32, height: 32 }} />)}
             {Array.from({ length: dim }, (_, i) => {
               const d = new Date(now.getFullYear(), now.getMonth(), i + 1);
               const key = d.toISOString().slice(0, 10);
               const count = dayCount[key] || 0;
               const isToday = key === now.toISOString().slice(0, 10);
               return (
-                <View key={i} style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: isToday && count === 0 ? "rgba(255,255,255,0.06)" : "transparent", borderWidth: count > 0 ? 2 : (isToday ? 1 : 0), borderColor: count > 0 ? colors.success : (isToday ? "rgba(255,255,255,0.15)" : "transparent"), alignItems: "center", justifyContent: "center" }}>
-                  <Text style={{ fontSize: 12, fontWeight: count > 0 ? "700" : "400", color: count > 0 ? colors.success : (isToday ? colors.text : colors.textDim) }}>{i + 1}</Text>
+                <View key={i} style={{ width: 32, height: 32, borderRadius: 6, backgroundColor: isToday && count === 0 ? "rgba(255,255,255,0.06)" : "transparent", borderWidth: count > 0 ? 2 : (isToday ? 1 : 0), borderColor: count > 0 ? colors.success : (isToday ? "rgba(255,255,255,0.15)" : "transparent"), alignItems: "center", justifyContent: "center" }}>
+                  <Text style={{ fontSize: 10, fontWeight: count > 0 ? "700" : "400", color: count > 0 ? colors.success : (isToday ? colors.text : colors.textDim) }}>{i + 1}</Text>
                 </View>
               );
             })}
           </View>
         </View>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", marginTop: 8 }}>
-          <Text style={{ fontSize: 11, color: colors.textMuted }}>วันนี้: {now.toLocaleDateString("th-TH", { weekday: "long" })}{todayCount > 0 ? " ✅ ทำแล้ว" : ""}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", marginTop: 4 }}>
+          <Text style={{ fontSize: 10, color: colors.textMuted }}>วันนี้: {now.toLocaleDateString("th-TH", { weekday: "long" })}{todayCount > 0 ? " ✅" : ""}</Text>
         </View>
       </View>
 
@@ -120,31 +120,39 @@ export default function DesktopProfile() {
         </TouchableOpacity>
       </View>
 
-      {/* Verification History */}
-      <Text style={s.sectionTitle}>📸 ประวัติตรวจสอบ</Text>
+      {/* Recent Activity Gallery */}
+      <Text style={s.sectionTitle}>📸 กิจกรรมล่าสุด</Text>
       {workoutLog.filter((l) => l.imageUri).length === 0 ? (
-        <View style={{ padding: 20, backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.cardBorder, alignItems: "center" }}>
-          <Text style={{ fontSize: 13, color: colors.textDim }}>ยังไม่มีประวัติ 📸</Text></View>
-      ) : workoutLog.filter((l) => l.imageUri).slice(0, 8).map((l, i) => (
-        <View key={i} style={s.historyRow}>
-          {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: 44, height: 44, borderRadius: 8 }} /> :
-            <View style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: colors.card, alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
-          <View style={{ flex: 1, marginLeft: 8 }}>
-            <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text }}>{l.activity}</Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
-              <Text style={{ fontSize: 10, color: colors.gold }}>+{l.coins}🪙</Text>
-              {l.duration ? <Text style={{ fontSize: 10, color: colors.textDim }}>⏱️{l.duration}น</Text> : null}
-              {l.distance ? <Text style={{ fontSize: 10, color: colors.textDim }}>📏{l.distance}กม</Text> : null}
-              {l.calories ? <Text style={{ fontSize: 10, color: colors.textDim }}>🔥{l.calories}kcal</Text> : null}
+        <View style={{ padding: 30, backgroundColor: colors.card, borderRadius: 14, borderWidth: 1, borderColor: colors.cardBorder, alignItems: "center" }}>
+          <Text style={{ fontSize: 32, marginBottom: 8 }}>🏃</Text>
+          <Text style={{ fontSize: 14, color: colors.textDim }}>ยังไม่มีประวัติ</Text></View>
+      ) : (
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
+          {workoutLog.filter((l) => l.imageUri).slice(0, 8).map((l, i) => (
+            <View key={i} style={{ width: "23%", minWidth: 180, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, borderRadius: 14, overflow: "hidden" }}>
+              <View style={{ aspectRatio: 1, width: "100%" }}>
+                {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: "100%", height: "100%" }} /> :
+                  <View style={{ width: "100%", height: "100%", backgroundColor: "rgba(255,255,255,0.04)", alignItems: "center", justifyContent: "center" }}><Text style={{ fontSize: 36 }}>🏃</Text></View>}
+              </View>
+              <View style={{ padding: 10, gap: 3 }}>
+                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text }}>
+                  {l.activity === "คาร์ดิโอ" ? "🏃 " : l.activity === "เวทเทรนนิ่ง" ? "🏋️ " : l.activity === "เดินทั่วไป" ? "🚶 " : l.activity === "HIIT" ? "💥 " : l.activity === "ว่ายน้ำ" ? "🏊 " : "🧘 "}
+                  {l.activity}
+                </Text>
+                <View style={{ flexDirection: "row", gap: 8 }}>
+                  {l.duration ? <Text style={{ fontSize: 10, color: colors.textDim }}>⏱️{l.duration}น</Text> : null}
+                  {l.calories ? <Text style={{ fontSize: 10, color: colors.gold }}>🔥{l.calories}</Text> : null}
+                  <Text style={{ fontSize: 10, color: colors.gold }}>+{l.coins}🪙</Text>
+                </View>
+                <Text style={{ fontSize: 9, color: colors.textMuted }}>{new Date(l.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}</Text>
+              </View>
             </View>
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 1 }}>
-              <Text style={{ fontSize: 10, color: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }}>🛡️ Fraud: {l.fraudScore ?? 0}</Text>
-            </View>
-          </View>
-          <Text style={{ fontSize: 18 }}>{l.verified ? "✅" : "⏳"}</Text>
+          ))}
         </View>
-      ))}
-      <View style={{ height: 40 }} />
+      )}
+      <TouchableOpacity style={{ padding: 12, backgroundColor: "rgba(255,255,255,0.03)", borderRadius: 12, borderWidth: 1, borderColor: colors.cardBorder, alignItems: "center", marginBottom: 16 }}>
+        <Text style={{ fontSize: 12, fontWeight: "600", color: colors.textDim }}>📋 ดูประวัติทั้งหมด</Text>
+      </TouchableOpacity>
 
       {/* Edit Modal */}
       <Modal visible={showEdit} transparent animationType="fade">
