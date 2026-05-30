@@ -120,39 +120,33 @@ export default function DesktopProfile() {
         </TouchableOpacity>
       </View>
 
-      {/* Recent Activity Gallery */}
+      {/* Recent Activity */}
       <Text style={s.sectionTitle}>📸 กิจกรรมล่าสุด</Text>
       {workoutLog.filter((l) => l.imageUri).length === 0 ? (
         <View style={{ padding: 30, backgroundColor: colors.card, borderRadius: 14, borderWidth: 1, borderColor: colors.cardBorder, alignItems: "center" }}>
           <Text style={{ fontSize: 32, marginBottom: 8 }}>🏃</Text>
           <Text style={{ fontSize: 14, color: colors.textDim }}>ยังไม่มีประวัติ</Text></View>
-      ) : (
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
-          {workoutLog.filter((l) => l.imageUri).slice(0, 8).map((l, i) => (
-            <View key={i} style={{ width: "23%", minWidth: 180, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, borderRadius: 14, overflow: "hidden" }}>
-              <View style={{ aspectRatio: 1, width: "100%" }}>
-                {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: "100%", height: "100%" }} /> :
-                  <View style={{ width: "100%", height: "100%", backgroundColor: "rgba(255,255,255,0.04)", alignItems: "center", justifyContent: "center" }}><Text style={{ fontSize: 36 }}>🏃</Text></View>}
-              </View>
-              <View style={{ padding: 10, gap: 3 }}>
-                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text }}>
-                  {l.activity === "คาร์ดิโอ" ? "🏃 " : l.activity === "เวทเทรนนิ่ง" ? "🏋️ " : l.activity === "เดินทั่วไป" ? "🚶 " : l.activity === "HIIT" ? "💥 " : l.activity === "ว่ายน้ำ" ? "🏊 " : "🧘 "}
-                  {l.activity}
-                </Text>
-                <View style={{ flexDirection: "row", gap: 8 }}>
-                  {l.duration ? <Text style={{ fontSize: 10, color: colors.textDim }}>⏱️{l.duration}น</Text> : null}
-                  {l.calories ? <Text style={{ fontSize: 10, color: colors.gold }}>🔥{l.calories}</Text> : null}
-                  <Text style={{ fontSize: 10, color: colors.gold }}>+{l.coins}🪙</Text>
-                </View>
-                <Text style={{ fontSize: 9, color: colors.textMuted }}>{new Date(l.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}</Text>
-              </View>
+      ) : workoutLog.filter((l) => l.imageUri).slice(0, 6).map((l, i) => (
+        <View key={i} style={s.historyRow}>
+          <View style={{ width: 56, height: 56, borderRadius: 10, overflow: "hidden" }}>
+            {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: 56, height: 56 }} /> :
+              <View style={{ width: 56, height: 56, backgroundColor: "rgba(255,255,255,0.04)", alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
+          </View>
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text }}>
+              {l.activity === "คาร์ดิโอ" ? "🏃 " : l.activity === "เวทเทรนนิ่ง" ? "🏋️ " : l.activity === "เดินทั่วไป" ? "🚶 " : l.activity === "HIIT" ? "💥 " : l.activity === "ว่ายน้ำ" ? "🏊 " : "🧘 "}{l.activity}
+            </Text>
+            <View style={{ flexDirection: "row", gap: 8, marginTop: 2 }}>
+              {l.duration ? <Text style={{ fontSize: 11, color: colors.textDim }}>⏱️{l.duration}น</Text> : null}
+              {l.calories ? <Text style={{ fontSize: 11, color: colors.gold }}>🔥{l.calories}</Text> : null}
             </View>
-          ))}
+          </View>
+          <View style={{ alignItems: "flex-end" }}>
+            <Text style={{ fontSize: 13, fontWeight: "700", color: colors.gold }}>+{l.coins}🪙</Text>
+            <Text style={{ fontSize: 10, color: colors.textMuted, marginTop: 2 }}>{new Date(l.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}</Text>
+          </View>
         </View>
-      )}
-      <TouchableOpacity style={{ padding: 12, backgroundColor: "rgba(255,255,255,0.03)", borderRadius: 12, borderWidth: 1, borderColor: colors.cardBorder, alignItems: "center", marginBottom: 16 }}>
-        <Text style={{ fontSize: 12, fontWeight: "600", color: colors.textDim }}>📋 ดูประวัติทั้งหมด</Text>
-      </TouchableOpacity>
+      ))}
 
       {/* Edit Modal */}
       <Modal visible={showEdit} transparent animationType="fade">
