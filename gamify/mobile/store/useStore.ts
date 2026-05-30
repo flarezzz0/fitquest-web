@@ -100,7 +100,7 @@ export const useStore = create<AppState>((set, get) => ({
       const { data } = await supabase.from("users").select("*").eq("id", u.id).single();
       if (data) {
         set({
-          coins: Math.max(data.coins ?? 0, get().coins),
+          coins: data.coins ?? get().coins,
           totalCoinsEarned: Math.max(data.total_coins_earned ?? 0, get().totalCoinsEarned),
           streak: Math.max(data.streak ?? 0, get().streak),
           longestStreak: Math.max(data.longest_streak ?? 0, get().longestStreak),
@@ -145,6 +145,12 @@ export const useStore = create<AppState>((set, get) => ({
   spendCoins: (n) => {
     if (get().coins < n) return false;
     set((s) => ({ coins: s.coins - n }));
+    // 📡 Cloud sync
+    const { user } = get();
+    if (user?.id) {
+      supabase.from("users").update({ coins: get().coins, updated_at: new Date().toISOString() })
+        .eq("id", user.id).then(({ error }) => { if (error) console.warn("spend sync failed:", error); });
+    }
     return true;
   },
   addWorkout: (log) => {
