@@ -10,7 +10,10 @@ export const api = axios.create({
   timeout: 30000,
 });
 
-export const checkHealth = () => api.get("/health");
+export const checkHealth = () => {
+  if (Platform.OS === "web") return Promise.resolve(null); // web ไม่มี backend
+  return api.get("/health");
+};
 export const uploadActivity = (formData: FormData) =>
   api.post("/activity/verify", formData, {
     headers: { "Content-Type": "multipart/form-data" },
