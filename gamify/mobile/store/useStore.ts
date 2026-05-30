@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { supabase } from "../services/supabase";
 
 export interface WorkoutLog {
   date: string;
@@ -93,17 +94,60 @@ export const useStore = create<AppState>((set, get) => ({
     if (!u) return set({ user: null, ...resetData });
     const raw = await AsyncStorage.getItem(`fitquest_v3_${u.id}`);
     set(raw ? { ...JSON.parse(raw), user: u } : { user: u, ...resetData });
+
+    // 📡 Cloud sync: ดึงข้อมูลจาก Supabase ทับ (ถ้ามี)
+    try {
+      const { data } = await supabase.from("users").select("*").eq("id", u.id).single();
+      if (data) {
+        set({
+          coins: data.coins ?? get().coins,
+          totalCoinsEarned: data.total_coins_earned ?? get().totalCoinsEarned,
+          streak: data.streak ?? get().streak,
+          longestStreak: data.longest_streak ?? get().longestStreak,
+          totalWorkouts: data.total_workouts ?? get().totalWorkouts,
+          level: data.level ?? get().level,
+          profile: {
+            weight: data.weight ?? get().profile.weight,
+            height: data.height ?? get().profile.height,
+          },
+        });
+      } else {
+        // user ใหม่ → สร้าง row ใน cloud
+        await supabase.from("users").insert({
+          id: u.id, email: u.email, name: u.name, picture: u.picture,
+        });
+      }
+    } catch (e) {
+      console.warn("Cloud sync failed, using local:", e);
+    }
   },
   setBackend: (b) => set({ backendAvailable: b }),
-  setProfile: (p) => set({ profile: p }),
+  setProfile: (p) => {
+    set({ profile: p });
+    // 📡 Cloud sync
+    const { user } = get();
+    if (user?.id) {
+      supabase.from("users").update({ weight: p.weight, height: p.height, updated_at: new Date().toISOString() })
+        .eq("id", user.id).then(({ error }) => { if (error) console.warn("profile sync failed:", error); });
+    }
+  },
 
-  addCoins: (n) => set((s) => ({ coins: s.coins + n, totalCoinsEarned: s.totalCoinsEarned + n })),
+  addCoins: (n) => {
+    set((s) => ({ coins: s.coins + n, totalCoinsEarned: s.totalCoinsEarned + n }));
+    // 📡 Cloud sync
+    const { user } = get();
+    if (user?.id) {
+      supabase.rpc("increment_coins", { uid: user.id, amount: n }).then(({ error }) => {
+        if (error) console.warn("coins sync failed:", error);
+      });
+    }
+  },
   spendCoins: (n) => {
     if (get().coins < n) return false;
     set((s) => ({ coins: s.coins - n }));
     return true;
   },
-  addWorkout: (log) =>
+  addWorkout: (log) => {
     set((s) => {
       const qp = { ...s.questProgress };
 
@@ -147,7 +191,33 @@ export const useStore = create<AppState>((set, get) => ({
         weekCount: s.weekCount + 1,
         questProgress: qp,
       };
-    }),
+    });
+
+    // 📡 Cloud sync: fire & forget
+    const { user } = get();
+    if (user?.id) {
+      supabase.from("workout_logs").insert({
+        user_id: user.id, date: log.date, activity: log.activity,
+        activity_id: log.activityId, duration: log.duration,
+        distance: log.distance, calories: log.calories, coins: log.coins,
+        bonus: log.bonus, verified: log.verified, image_uri: log.imageUri,
+        fraud_score: log.fraudScore, risk_level: log.riskLevel,
+      }).then(({ error }) => {
+        if (error) console.warn("workout sync failed:", error);
+      });
+
+      // sync user stats
+      const st = get();
+      supabase.from("users").update({
+        coins: st.coins, total_coins_earned: st.totalCoinsEarned,
+        streak: st.streak, longest_streak: st.longestStreak,
+        total_workouts: st.totalWorkouts,
+        updated_at: new Date().toISOString(),
+      }).eq("id", user.id).then(({ error }) => {
+        if (error) console.warn("user stats sync failed:", error);
+      });
+    }
+  },
   updateStreak: (s) => set((st) => ({ streak: s, longestStreak: Math.max(st.longestStreak, s) })),
   claimQuest: (id) => {
     if (get().questClaimed.includes(id)) return false;
