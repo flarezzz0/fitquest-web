@@ -2,8 +2,13 @@ import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, StyleSheet, Modal, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useStore } from "../store/useStore";
 import { colors } from "../theme/colors";
-import CoinCard from "./CoinCard";
-import StreakBanner from "./StreakBanner";
+
+const weeklyQuestsDef = [
+  { id: "w_cardio_3", name: "คาร์ดิโอครบ 3 ครั้ง", target: 3 },
+  { id: "w_gym_4", name: "เข้าฟิตเนส 4 วัน", target: 4 },
+  { id: "w_all_types", name: "ออกกำลังครบทุกประเภท", target: 4 },
+  { id: "w_cal_2000", name: "เผาผลาญ 2,000 kcal", target: 2000 },
+];
 
 export default function DesktopDashboard() {
   const { coins, level, totalCoinsEarned, streak, frozenUsed, totalWorkouts, todayCount, weekCount, workoutLog, questProgress, user, profile, setProfile } = useStore();
@@ -33,150 +38,105 @@ export default function DesktopDashboard() {
   const calPct = dailyRecommend > 0 ? Math.min(100, (todayCalories / dailyRecommend) * 100) : 0;
   const calColor = calPct < 25 ? colors.textMuted : calPct < 60 ? colors.success : calPct < 85 ? colors.warning : colors.error;
 
+  const incompleteWeekly = weeklyQuestsDef.filter(q => (questProgress[q.id] || 0) < q.target).slice(0, 2);
+
   return (
     <>
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Page Header */}
+      {/* Hero */}
       <View style={styles.pageHeader}>
-        <View>
-          <Text style={styles.pageTitle}>แดชบอร์ด</Text>
-          <Text style={styles.pageSub}>ภาพรวมกิจกรรมของคุณวันนี้</Text>
-        </View>
-        <View style={styles.headerRight}>
-          <View style={styles.levelPill}>
-            <Text style={styles.levelText}>LV.{level}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
+          <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: colors.card, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.cardBorder }}>
+            <Text style={{ fontSize: 24 }}>🏃</Text>
+          </View>
+          <View>
+            <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>สวัสดี {user?.name || "flare"} 🔥{streak}</Text>
+            <Text style={{ fontSize: 13, color: colors.textDim, marginTop: 2 }}>LV.{level}</Text>
           </View>
         </View>
+        <Text style={{ fontSize: 22, fontWeight: "800", color: colors.gold }}>🪙 {coins}</Text>
       </View>
 
-      {/* Stats Row — 4 cards thinner */}
-      <View style={styles.statsRow}>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{totalWorkouts}</Text>
-          <Text style={styles.statLabel}>🏋️ ทั้งหมด</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{totalCoinsEarned}</Text>
-          <Text style={styles.statLabel}>🪙 สะสม</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{streak}</Text>
-          <Text style={styles.statLabel}>🔥 Streak</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{weekCount}</Text>
-          <Text style={styles.statLabel}>📅 อาทิตย์นี้</Text>
-        </View>
-      </View>
-
-      {/* BMR Row + Calorie Progress */}
+      {/* Calories */}
       {bmr > 0 && (
-        <View style={{ flexDirection: "row", gap: 16, marginBottom: 24 }}>
-          <View style={[styles.statCard, { flex: 1 }]}>
-            <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>🔥 BMR</Text>
-            <Text style={{ fontSize: 22, fontWeight: "700", color: colors.success }}>{bmr}</Text>
+        <View style={{ backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 16, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, color: colors.textDim }}>🔥 Calories</Text>
+            <Text style={{ fontSize: 22, fontWeight: "700", color: calColor }}>{todayCalories.toLocaleString()} / {dailyRecommend.toLocaleString()} kcal</Text>
           </View>
-          <View style={[styles.statCard, { flex: 1 }]}>
-            <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>📏 BMI</Text>
-            <Text style={{ fontSize: 22, fontWeight: "700", color: colors.primary }}>{bmi}</Text>
+          <View style={{ width: "100%", height: 10, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 5, overflow: "hidden", marginBottom: 8 }}>
+            <View style={{ height: "100%", borderRadius: 5, width: `${calPct}%`, backgroundColor: calColor }} />
           </View>
-          <View style={[styles.statCard, { flex: 1 }]}>
-            <Text style={{ fontSize: 11, color: colors.textDim, marginBottom: 4 }}>🎯 TDEE</Text>
-            <Text style={{ fontSize: 22, fontWeight: "700", color: colors.gold }}>{dailyRecommend}</Text>
-          </View>
-          <View style={[styles.statCard, { flex: 2 }]}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-              <Text style={{ fontSize: 11, color: colors.textDim }}>🔥 Calories วันนี้</Text>
-              <Text style={{ fontSize: 13, fontWeight: "700", color: calColor }}>{todayCalories.toLocaleString()} / {dailyRecommend.toLocaleString()}</Text>
-            </View>
-            <View style={{ width: "100%", height: 8, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
-              <View style={{ height: "100%", borderRadius: 4, width: `${calPct}%`, backgroundColor: calColor }} />
-            </View>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <Text style={{ fontSize: 11, color: colors.textMuted }}>🔥 BMR {bmr}</Text>
+            <Text style={{ fontSize: 11, color: colors.textMuted }}>| 📏 BMI {bmi}</Text>
+            <Text style={{ fontSize: 11, color: colors.textMuted }}>| 🎯 TDEE {dailyRecommend}</Text>
           </View>
         </View>
       )}
 
-      {/* Main Content Grid — 2 columns */}
-      <View style={styles.mainGrid}>
-        {/* Left Column */}
-        <View style={styles.leftCol}>
-          {/* Progress Today */}
-          <View style={styles.progressCard}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressTitle}>📊 Progress วันนี้</Text>
-              <Text style={styles.progressCount}>
-                <Text style={{ color: colors.primary, fontWeight: "700" }}>{todayCount}</Text> / 5
-              </Text>
-            </View>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${dailyPct}%` }]} />
-            </View>
-          </View>
-
-          {/* Coin + Streak row */}
-          <View style={styles.doubleRow}>
-            <View style={{ flex: 1 }}>
-              <CoinCard coins={coins} level={level} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <StreakBanner streak={streak} mult={mult} frozen={frozenUsed} />
-            </View>
-          </View>
-
-          {/* Recent Activities */}
-          <Text style={styles.sectionTitle}>📜 กิจกรรมล่าสุด</Text>
-          {workoutLog.length === 0 ? (
-            <View style={styles.emptyBox}>
-              <Text style={{ fontSize: 14, color: colors.textDim }}>ยังไม่มีประวัติ 💪</Text>
-            </View>
-          ) : workoutLog.slice(0, 6).map((log, i) => (
-            <View key={i} style={styles.recentRow}>
-              <Text style={{ fontSize: 20 }}>
-                {log.activity === "คาร์ดิโอ" ? "🏃" : log.activity === "เวทเทรนนิ่ง" ? "🏋️" : log.activity === "เดินทั่วไป" ? "🚶" : log.activity === "HIIT" ? "💥" : log.activity === "ว่ายน้ำ" ? "🏊" : "🧘"}
-              </Text>
-              <View style={styles.recentInfo}>
-                <Text style={styles.recentName}>{log.activity}</Text>
-                <Text style={styles.recentDate}>{new Date(log.date).toLocaleDateString("th-TH", { weekday: "short", month: "short", day: "numeric" })}</Text>
-              </View>
-              <Text style={styles.recentCoins}>+{log.coins}🪙</Text>
-            </View>
-          ))}
+      {/* Daily Quest */}
+      <View style={{ backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 16, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 8 }}>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>✅ เควสวันนี้</Text>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.primary }}>{todayCount} / 5</Text>
         </View>
-
-        {/* Right Column */}
-        <View style={styles.rightCol}>
-          {/* Weekly Quests */}
-          <Text style={styles.sectionTitle}>📅 เควสรายสัปดาห์</Text>
-          <View style={styles.questsContainer}>
-            {[
-              { n: "คาร์ดิโอครบ 3 ครั้ง", p: questProgress.w_cardio_3 || 0, t: 3 },
-              { n: "เข้ายิมครบ 4 วัน", p: questProgress.w_gym_4 || 0, t: 4 },
-              { n: "ครบทุกประเภท", p: questProgress.w_all_types || 0, t: 4 },
-            ].map((q, i) => {
-              const pct = Math.min(100, (q.p / q.t) * 100);
-              return (
-                <View key={i} style={styles.questCard}>
-                  <View style={styles.questInfo}>
-                    <Text style={styles.questName}>{q.n}</Text>
-                    <Text style={styles.questProgress}>{q.p}/{q.t}</Text>
-                  </View>
-                  <View style={styles.questBar}>
-                    <View style={[styles.questFill, { width: `${pct}%` }]} />
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-
-          {/* Quick Info */}
-          <View style={styles.infoCard}>
-            <Text style={styles.infoTitle}>💡 เกร็ดความรู้</Text>
-            <Text style={styles.infoText}>
-              การออกกำลังกาย 30 นาทีต่อวัน ช่วยลดความเสี่ยงโรคหัวใจได้ถึง 35%
-            </Text>
-          </View>
+        <View style={{ width: "100%", height: 8, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+          <View style={{ height: "100%", borderRadius: 4, width: `${dailyPct}%`, backgroundColor: colors.primary }} />
         </View>
       </View>
+
+      {/* Weekly Quests */}
+      {incompleteWeekly.length > 0 && (
+        <View style={{ backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 16, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>📅 เควสสัปดาห์</Text>
+          {incompleteWeekly.map((q) => {
+            const p = questProgress[q.id] || 0;
+            const pct = Math.min(100, (p / q.target) * 100);
+            return (
+              <View key={q.id} style={{ marginBottom: 8 }}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 3 }}>
+                  <Text style={{ fontSize: 12, color: colors.textDim }}>{q.name}</Text>
+                  <Text style={{ fontSize: 11, color: colors.textMuted }}>{p}/{q.target}</Text>
+                </View>
+                <View style={{ width: "100%", height: 6, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
+                  <View style={{ height: "100%", width: `${pct}%`, backgroundColor: colors.primary, borderRadius: 3 }} />
+                </View>
+              </View>
+            );
+          })}
+          <TouchableOpacity style={{ alignSelf: "center", marginTop: 2 }}>
+            <Text style={{ fontSize: 12, color: colors.primary, fontWeight: "600" }}>ดูทั้งหมด →</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Recent Activities */}
+      {workoutLog.length > 0 && (
+        <View style={{ marginBottom: 16 }}>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 8 }}>📋 กิจกรรมล่าสุด</Text>
+          {workoutLog.slice(0, 3).map((log, i) => (
+            <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 8, borderBottomWidth: i < 2 ? 1 : 0, borderBottomColor: "rgba(255,255,255,0.04)" }}>
+              <Text style={{ fontSize: 18 }}>
+                {log.activity === "คาร์ดิโอ" ? "🏃" : log.activity === "เวทเทรนนิ่ง" ? "🏋️" : log.activity === "เดินทั่วไป" ? "🚶" : log.activity === "HIIT" ? "💥" : log.activity === "ว่ายน้ำ" ? "🏊" : "🧘"}
+              </Text>
+              <Text style={{ flex: 1, fontSize: 13, color: colors.text }}>{log.activity}</Text>
+              <Text style={{ fontSize: 13, fontWeight: "700", color: colors.gold }}>+{log.coins}🪙</Text>
+            </View>
+          ))}
+          <TouchableOpacity style={{ alignSelf: "center", marginTop: 4 }}>
+            <Text style={{ fontSize: 12, color: colors.primary, fontWeight: "600" }}>ดูทั้งหมด →</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      {workoutLog.length === 0 && (
+        <View style={{ padding: 40, alignItems: "center" }}>
+          <Text style={{ fontSize: 40, marginBottom: 8 }}>🏃</Text>
+          <Text style={{ fontSize: 14, color: colors.textDim }}>ยังไม่มีกิจกรรม</Text>
+          <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 4 }}>เริ่มออกกำลังกายเพื่อรับเหรียญแรกของคุณ</Text>
+        </View>
+      )}
+      {/* Main Content Grid — 2 columns */}
     </ScrollView>
 
       {/* First-time Setup Modal */}

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, Platform, useWindowDimensions, Modal, TextInput, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import CoinCard from "../../components/CoinCard";
-import StreakBanner from "../../components/StreakBanner";
+
 import EmptyState from "../../components/EmptyState";
 import { useStore } from "../../store/useStore";
 import { colors } from "../../theme/colors";
@@ -41,8 +40,16 @@ export default function Dashboard() {
   const calColor = calPct < 25 ? colors.textMuted : calPct < 60 ? colors.success : calPct < 85 ? colors.warning : colors.error;
 
   const mult = streak <= 0 ? 1 : streak <= 3 ? 1 : streak <= 7 ? 1.5 : 2;
-  const expPct = totalCoinsEarned > 0 ? Math.min(100, totalCoinsEarned % 100) : 0;
   const dailyPct = Math.min(100, (todayCount / 5) * 100);
+
+  // Weekly quest definitions
+  const weeklyQuests = [
+    { id: "w_cardio_3", name: "คาร์ดิโอครบ 3 ครั้ง", target: 3 },
+    { id: "w_gym_4", name: "เข้าฟิตเนส 4 วัน", target: 4 },
+    { id: "w_all_types", name: "ออกกำลังครบทุกประเภท", target: 4 },
+    { id: "w_cal_2000", name: "เผาผลาญ 2,000 kcal", target: 2000 },
+  ];
+  const incompleteWeekly = weeklyQuests.filter(q => (questProgress[q.id] || 0) < q.target).slice(0, 2);
 
   const s = isDesktop ? desktop : mobile;
 
@@ -53,33 +60,18 @@ export default function Dashboard() {
         {/* Header */}
         <View style={s.hdr}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: isDesktop ? 14 : 10 }}>
-            <View style={s.av}><Text style={{ fontSize: isDesktop ? 28 : 20 }}>🏃</Text></View>
+            <View style={s.av}><Text style={{ fontSize: isDesktop ? 28 : 22 }}>🏃</Text></View>
             <View>
-              <Text style={s.greeting}>สวัสดี! 👋</Text>
-              <Text style={s.lvText}>LV.{level} นักผจญภัย</Text>
+              <Text style={s.greeting}>สวัสดี {user?.name || "flare"} 🔥{streak}</Text>
+              <Text style={s.lvText}>LV.{level}</Text>
             </View>
           </View>
           <Text style={s.coinHeader}>🪙 {coins}</Text>
         </View>
 
-        {/* Top row: Coin + Streak side by side on desktop */}
-        {isDesktop ? (
-          <View style={{ flexDirection: "row", gap: 16, marginBottom: 16 }}>
-            <View style={{ flex: 1 }}><CoinCard coins={coins} level={level} /></View>
-            <View style={{ flex: 1 }}><StreakBanner streak={streak} mult={mult} frozen={frozenUsed} /></View>
-          </View>
-        ) : (
-          <>
-            <View style={{ marginBottom: 10 }}><CoinCard coins={coins} level={level} /></View>
-            <View style={{ marginBottom: 10 }}><StreakBanner streak={streak} mult={mult} frozen={frozenUsed} /></View>
-          </>
-        )}
 
-        {/* EXP Bar */}
-        <View style={{ marginBottom: isDesktop ? 20 : 10 }}>
-          <View style={s.expb}><View style={[s.expf, { width: `${expPct}%` }]} /></View>
-          <Text style={s.expText}>LV.{level} — สะสม {totalCoinsEarned} 🪙</Text>
-        </View>
+
+
 
         {/* Daily Progress */}
         <View style={s.dc}>
@@ -90,131 +82,86 @@ export default function Dashboard() {
           <View style={s.dcBar}><View style={[s.dcFill, { width: `${dailyPct}%` }]} /></View>
         </View>
 
-        {/* BMR / Calorie Recommend */}
-        {bmr > 0 ? (
-          <View style={{ marginTop: 8 }}>
-            <View style={{ flexDirection: "row", gap: 6, alignItems: "center" }}>
-              <View style={{ flex: 1, alignItems: "center", backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 10, padding: 8, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
-                <Text style={{ fontSize: 9, color: colors.textDim }}>🔥 BMR</Text>
-                <Text style={{ fontSize: 13, fontWeight: "700", color: colors.success }}>{bmr}</Text>
-              </View>
-              <View style={{ flex: 1, alignItems: "center", backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 10, padding: 8, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
-                <Text style={{ fontSize: 9, color: colors.textDim }}>📏 BMI</Text>
-                <Text style={{ fontSize: 13, fontWeight: "700", color: colors.primary }}>{bmi}</Text>
-              </View>
-              <View style={{ flex: 1, alignItems: "center", backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 10, padding: 8, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
-                <Text style={{ fontSize: 9, color: colors.textDim }}>🎯 TDEE</Text>
-                <Text style={{ fontSize: 13, fontWeight: "700", color: colors.gold }}>{dailyRecommend}</Text>
-              </View>
+        {/* Calories + BMR/BMI/TDEE */}
+        {bmr > 0 && (
+          <View style={{ marginTop: 8, backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 14, padding: 14, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
+              <Text style={{ fontSize: 13, color: colors.textDim }}>🔥 Calories</Text>
+              <Text style={{ fontSize: isDesktop ? 20 : 18, fontWeight: "700", color: calColor }}>{todayCalories.toLocaleString()} / {dailyRecommend.toLocaleString()} kcal</Text>
             </View>
-            {/* Calorie Progress */}
-            <View style={{ marginTop: 6, backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 10, padding: 10, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 4 }}>
-                <Text style={{ fontSize: 10, color: colors.textDim }}>🔥 Calories</Text>
-                <Text style={{ fontSize: 11, fontWeight: "700", color: calColor }}>{todayCalories.toLocaleString()} / {dailyRecommend.toLocaleString()} kcal</Text>
-              </View>
-              <View style={{ width: "100%", height: 6, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
-                <View style={{ height: "100%", borderRadius: 3, width: `${calPct}%`, backgroundColor: calColor }} />
-              </View>
+            <View style={{ width: "100%", height: 10, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 5, overflow: "hidden", marginBottom: 6 }}>
+              <View style={{ height: "100%", borderRadius: 5, width: `${calPct}%`, backgroundColor: calColor }} />
+            </View>
+            <View style={{ flexDirection: "row", gap: 6 }}>
+              <Text style={{ fontSize: 10, color: colors.textMuted }}>🔥 BMR {bmr}</Text>
+              <Text style={{ fontSize: 10, color: colors.textMuted }}>|</Text>
+              <Text style={{ fontSize: 10, color: colors.textMuted }}>📏 BMI {bmi}</Text>
+              <Text style={{ fontSize: 10, color: colors.textMuted }}>|</Text>
+              <Text style={{ fontSize: 10, color: colors.textMuted }}>🎯 TDEE {dailyRecommend}</Text>
             </View>
           </View>
-        ) : null}
+        )}
 
-        {/* Stats + Quest grid on desktop */}
-        {isDesktop ? (
-          <View style={{ flexDirection: "row", gap: 16, marginTop: 16 }}>
-            {/* Stats column */}
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 18, fontWeight: "600", color: colors.text, marginBottom: 12 }}>📊 สถิติ</Text>
-              <View style={{ flexDirection: "row", gap: 10 }}>
-                {[
-                  { v: totalWorkouts, c: colors.primary, l: "🏋️ ทั้งหมด" },
-                  { v: weekCount, c: colors.primary, l: "📅 อาทิตย์นี้" },
-                  { v: todayCount, c: colors.primary, l: "📆 วันนี้" },
-                ].map((st, i) => (
-                  <View key={i} style={s.statBox}>
-                    <Text style={s.statVal}>{st.v}</Text>
-                    <Text style={s.statLabel}>{st.l}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-            {/* Quest column */}
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 18, fontWeight: "600", color: colors.text, marginBottom: 12 }}>📅 เควสรายสัปดาห์</Text>
-              {[
-                { n: "คาร์ดิโอครบ 3 ครั้ง", p: questProgress.w_cardio_3 || 0, t: 3 },
-                { n: "เข้ายิมครบ 4 วัน", p: questProgress.w_gym_4 || 0, t: 4 },
-              ].map((q, i) => {
-                const pct = Math.min(100, (q.p / q.t) * 100);
-                return (
-                  <View key={i} style={s.questMini}>
-                    <Text style={{ fontSize: 16 }}>{q.p >= q.t ? "✅" : "📅"}</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={s.qName}>{q.n}</Text>
-                      <View style={s.qBarw}><View style={[s.qBar, { width: `${pct}%` }]} /></View>
-                    </View>
-                    <Text style={s.qCount}>{q.p}/{q.t}</Text>
-                  </View>
-                );
-              })}
-            </View>
+        {/* Daily Quest Progress */}
+        <View style={{ marginTop: 10, backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 14, padding: 14, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text }}>✅ เควสวันนี้</Text>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.primary }}>{todayCount} / 5</Text>
           </View>
-        ) : (
-          <>
-            {/* Mobile stats row */}
-            <View style={{ flexDirection: "row", gap: 6, marginVertical: 10 }}>
-              {[
-                { v: totalWorkouts, c: colors.primary, l: "🏋️ ทั้งหมด" },
-                { v: weekCount, c: colors.primary, l: "📅 อาทิตย์นี้" },
-                { v: todayCount, c: colors.primary, l: "📆 วันนี้" },
-              ].map((st, i) => (
-                <View key={i} style={s.statBox}>
-                  <Text style={s.statVal}>{st.v}</Text>
-                  <Text style={s.statLabel}>{st.l}</Text>
-                </View>
-              ))}
-            </View>
+          <View style={{ width: "100%", height: 6, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
+            <View style={{ height: "100%", borderRadius: 3, width: `${dailyPct}%`, backgroundColor: colors.primary }} />
+          </View>
+        </View>
 
-            {/* Quest Preview */ }
-            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 8 }}>📅 เควสรายสัปดาห์</Text>
-            {[
-              { n: "คาร์ดิโอครบ 3 ครั้ง", p: questProgress.w_cardio_3 || 0, t: 3 },
-              { n: "เข้ายิมครบ 4 วัน", p: questProgress.w_gym_4 || 0, t: 4 },
-            ].map((q, i) => {
-              const pct = Math.min(100, (q.p / q.t) * 100);
+        {/* Weekly Quests */}
+        {incompleteWeekly.length > 0 && (
+          <View style={{ marginTop: 10, backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 14, padding: 14, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text, marginBottom: 8 }}>📅 เควสสัปดาห์</Text>
+            {incompleteWeekly.map((q) => {
+              const p = questProgress[q.id] || 0;
+              const pct = Math.min(100, (p / q.target) * 100);
               return (
-                <View key={i} style={s.questMini}>
-                  <Text style={{ fontSize: 14 }}>{q.p >= q.t ? "✅" : "📅"}</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={s.qName}>{q.n}</Text>
-                    <View style={s.qBarw}><View style={[s.qBar, { width: `${pct}%` }]} /></View>
+                <View key={q.id} style={{ marginBottom: 6 }}>
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                    <Text style={{ fontSize: 11, color: colors.textDim }}>{q.name}</Text>
+                    <Text style={{ fontSize: 10, color: colors.textMuted }}>{p}/{q.target}</Text>
                   </View>
-                  <Text style={s.qCount}>{q.p}/{q.t}</Text>
+                  <View style={{ width: "100%", height: 4, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+                    <View style={{ height: "100%", width: `${pct}%`, backgroundColor: colors.primary, borderRadius: 2 }} />
+                  </View>
                 </View>
               );
             })}
-          </>
+            <TouchableOpacity style={{ alignSelf: "center", marginTop: 4 }}>
+              <Text style={{ fontSize: 11, color: colors.primary, fontWeight: "600" }}>ดูทั้งหมด →</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         {/* Recent Activities */}
-        <Text style={{ fontSize: isDesktop ? 18 : 14, fontWeight: "600", color: colors.text, marginVertical: isDesktop ? 20 : 10 }}>
-          📜 กิจกรรมล่าสุด
-        </Text>
-        <View style={isDesktop ? { flexDirection: "row", flexWrap: "wrap", gap: 10 } : {}}>
-          {workoutLog.length === 0 ? (
+        {workoutLog.length > 0 && (
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text, marginBottom: 6 }}>📋 กิจกรรมล่าสุด</Text>
+            {workoutLog.slice(0, 3).map((log, i) => (
+              <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 7, borderBottomWidth: i < 2 ? 1 : 0, borderBottomColor: "rgba(255,255,255,0.04)" }}>
+                <Text style={{ fontSize: 16 }}>
+                  {log.activity === "คาร์ดิโอ" ? "🏃" : log.activity === "เวทเทรนนิ่ง" ? "🏋️" : log.activity === "เดินทั่วไป" ? "🚶" : log.activity === "HIIT" ? "💥" : log.activity === "ว่ายน้ำ" ? "🏊" : "🧘"}
+                </Text>
+                <Text style={{ flex: 1, fontSize: 12, color: colors.text }}>{log.activity}</Text>
+                <Text style={{ fontSize: 12, fontWeight: "700", color: colors.gold }}>+{log.coins}🪙</Text>
+              </View>
+            ))}
+            <TouchableOpacity style={{ alignSelf: "center", marginTop: 4 }}>
+              <Text style={{ fontSize: 11, color: colors.primary, fontWeight: "600" }}>ดูทั้งหมด →</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {workoutLog.length === 0 && (
+          <View style={{ marginTop: 10 }}>
             <EmptyState icon="🏃" title="ยังไม่มีกิจกรรม" subtitle="เริ่มออกกำลังกายเพื่อรับเหรียญแรกของคุณ" />
-          ) : workoutLog.slice(0, isDesktop ? 8 : 5).map((log, i) => (
-            <View key={i} style={[s.recentItem, isDesktop && { width: "48%", padding: 14 }]}>
-              <Text style={{ fontSize: isDesktop ? 20 : 16 }}>
-                {log.activity === "คาร์ดิโอ" ? "🏃" : log.activity === "เวทเทรนนิ่ง" ? "🏋️" : log.activity === "เดินทั่วไป" ? "🚶" : log.activity === "HIIT" ? "💥" : log.activity === "ว่ายน้ำ" ? "🏊" : "🧘"}
-              </Text>
-              <Text style={{ flex: 1, fontSize: isDesktop ? 14 : 12, fontWeight: "500", color: colors.text }}>{log.activity}</Text>
-              <Text style={{ fontSize: isDesktop ? 14 : 12, fontWeight: "700", color: colors.gold }}>+{log.coins}🪙</Text>
-            </View>
-          ))}
-        </View>
-        <View style={{ height: isDesktop ? 60 : 40 }} />
+          </View>
+        )}
+        <View style={{ height: isDesktop ? 40 : 30 }} />
       </ScrollView>
 
       {/* First-time Setup Modal */}
