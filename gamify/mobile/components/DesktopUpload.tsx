@@ -131,8 +131,11 @@ export default function DesktopUpload() {
 
   // ====== SUCCESS SCREEN ======
   if (done) {
-    const recent = workoutLog.filter((l) => l.imageUri).slice(0, 8);
-    // คำนวณเควสที่ progress
+    const recent = workoutLog.filter((l) => l.imageUri);
+    const scoreColor = !done.score || done.score < 20 ? "rgba(48,209,88,0.1)" : done.score < 50 ? "rgba(255,159,10,0.1)" : "rgba(255,69,58,0.1)";
+    const scoreTxt = !done.score || done.score < 20 ? "✅ ผ่าน" : done.score < 50 ? "⚠️ ปานกลาง" : "❌ สูง";
+    const scoreTxtColor = !done.score || done.score < 20 ? colors.success : done.score < 50 ? colors.warning : colors.error;
+    const activityEmoji = done.activityId === "cardio" ? "🏃" : done.activityId === "weights" ? "🏋️" : done.activityId === "walk" ? "🚶" : done.activityId === "hiit" ? "💥" : done.activityId === "swim" ? "🏊" : "🧘";
     const DQ_MAP: Record<string, { name: string; target: number }> = {
       d_cardio_20: { name: "🏃‍♂️ คาร์ดิโอ 20 นาที", target: 20 },
       d_stretch: { name: "🧘 ยืดกล้ามเนื้อ 10 นาที", target: 10 },
@@ -148,32 +151,28 @@ export default function DesktopUpload() {
       <ScrollView contentContainerStyle={s.container} showsVerticalScrollIndicator={false}>
         <View style={{ alignItems: "center", marginBottom: 24, marginTop: 20 }}>
           <Text style={{ fontSize: 56 }}>🎉</Text>
-          <Text style={{ fontSize: 28, fontWeight: "800", color: colors.success, marginTop: 8 }}>+{done.coins} 🪙</Text>
+          <Text style={{ fontSize: 28, fontWeight: "800", color: colors.gold, marginTop: 8 }}>+{done.coins} 🪙</Text>
           <Text style={{ fontSize: 14, color: colors.textDim, marginTop: 2 }}>บันทึกสำเร็จ!</Text>
         </View>
 
-        {/* Activity Info */}
-        <View style={s.glassCard}>
-          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 12 }}>📝 กิจกรรมที่บันทึก</Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
-            <View style={{ alignItems: "center", minWidth: 80 }}>
-              <Text style={{ fontSize: 28 }}>
-                {done.activityId === "cardio" ? "🏃" : done.activityId === "weights" ? "🏋️" : done.activityId === "walk" ? "🚶" : done.activityId === "hiit" ? "💥" : done.activityId === "swim" ? "🏊" : "🧘"}
-              </Text>
-              <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginTop: 4 }}>{done.activity}</Text>
+        {/* Activity Card — Calldash style */}
+        <View style={{ backgroundColor: scoreColor, borderRadius: 18, padding: 18, marginBottom: 16 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
+            <View style={{ width: 56, height: 56, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center", justifyContent: "center" }}>
+              <Text style={{ fontSize: 28 }}>{activityEmoji}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 3 }}>
-                <Text style={{ fontSize: 12, color: colors.textDim }}>⏱️ ระยะเวลา</Text>
-                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text }}>{done.duration || 0} นาที</Text>
+              <Text style={{ fontSize: 16, fontWeight: "700", color: colors.text }}>{done.activity}</Text>
+              <View style={{ flexDirection: "row", gap: 10, marginTop: 3 }}>
+                {done.duration ? <Text style={{ fontSize: 12, color: colors.textDim }}>⏱️ {done.duration}น</Text> : null}
+                {done.distance ? <Text style={{ fontSize: 12, color: colors.textDim }}>📏 {done.distance}กม</Text> : null}
+                {done.calories ? <Text style={{ fontSize: 12, color: colors.gold }}>🔥 {done.calories}</Text> : null}
               </View>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 3, borderTopWidth: 1, borderTopColor: colors.divider }}>
-                <Text style={{ fontSize: 12, color: colors.textDim }}>📏 ระยะทาง</Text>
-                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text }}>{done.distance || 0} กม.</Text>
-              </View>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 3, borderTopWidth: 1, borderTopColor: colors.divider }}>
-                <Text style={{ fontSize: 12, color: colors.textDim }}>🔥 แคลอรี</Text>
-                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.gold }}>{done.calories || 0} kcal</Text>
+            </View>
+            <View style={{ alignItems: "flex-end" }}>
+              <Text style={{ fontSize: 18, fontWeight: "700", color: colors.gold }}>+{done.coins}🪙</Text>
+              <View style={{ marginTop: 4, paddingHorizontal: 10, paddingVertical: 3, borderRadius: 999, backgroundColor: scoreColor }}>
+                <Text style={{ fontSize: 10, fontWeight: "600", color: scoreTxtColor }}>{scoreTxt}</Text>
               </View>
             </View>
           </View>
@@ -181,47 +180,50 @@ export default function DesktopUpload() {
 
         <View style={s.grid2}>
           <View style={s.cheatCard}>
-            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>🛡️ ระบบป้องกันการโกง</Text>
+            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>🛡️ การตรวจสอบ</Text>
             {[{ l: "Fraud Score", v: `${done.score || 0}/100`, c: done.score && done.score > 20 ? colors.error : colors.success },
-              { l: "Risk Level", v: done.risk === "high" ? "⚠️ สูง" : done.risk === "medium" ? "⚠️ ปานกลาง" : "✅ ต่ำ", c: done.risk === "high" ? colors.error : colors.success },
+              { l: "Risk Level", v: done.risk === "high" ? "❌ สูง" : done.risk === "medium" ? "⚠️ ปานกลาง" : "✅ ต่ำ", c: done.risk === "high" ? colors.error : colors.success },
               { l: "Streak Bonus", v: `x${streak <= 3 ? 1 : streak <= 7 ? 1.5 : 2}`, c: colors.gold },
             ].map((r, i) => (
-              <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 4, borderBottomWidth: i < 2 ? 1 : 0, borderBottomColor: colors.divider }}>
+              <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 5, borderBottomWidth: i < 2 ? 1 : 0, borderBottomColor: colors.divider }}>
                 <Text style={{ fontSize: 13, color: colors.textDim }}>{r.l}</Text>
-                <Text style={{ fontSize: 13, fontWeight: "700", color: r.c }}>{r.v}</Text>
+                <View style={{ paddingHorizontal: 10, paddingVertical: 2, borderRadius: 999, backgroundColor: r.c === colors.gold ? "rgba(255,214,10,0.12)" : "rgba(255,255,255,0.06)" }}>
+                  <Text style={{ fontSize: 11, fontWeight: "600", color: r.c }}>{r.v}</Text>
+                </View>
               </View>
             ))}
           </View>
-          <View style={s.uploadHistoryCard}>
-            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>📸 ประวัติล่าสุด</Text>
+          <View style={s.cheatCard}>
+            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>📸 รูปภาพ</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
               {recent.length === 0 ? <Text style={{ fontSize: 13, color: colors.textDim }}>ยังไม่มีรูป</Text> :
-                recent.map((l, i) => (
-                  <View key={i} style={{ width: "31%", aspectRatio: 1, borderRadius: 10, overflow: "hidden", borderWidth: 1.5, borderColor: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }}>
+                recent.slice(0, 6).map((l, i) => (
+                  <View key={i} style={{ width: "31%", aspectRatio: 1, borderRadius: 10, overflow: "hidden" }}>
                     {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: "100%", height: "100%" }} />
-                      : <View style={{ width: "100%", height: "100%", backgroundColor: colors.card, alignItems: "center", justifyContent: "center" }}><Text style={{ fontSize: 24 }}>🏃</Text></View>}
+                      : <View style={{ width: "100%", height: "100%", backgroundColor: "rgba(255,255,255,0.04)", alignItems: "center", justifyContent: "center" }}><Text style={{ fontSize: 24 }}>🏃</Text></View>}
                   </View>
                 ))}
             </View>
           </View>
         </View>
 
-        {/* Quest Progress */}
         {(doneQuests.length > 0 || inProgressQuests.length > 0) && (
           <View style={[s.glassCard, { marginTop: 16 }]}>
             <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>📅 ความคืบหน้าเควส</Text>
             {doneQuests.map(([id, q]) => (
               <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 4 }}>
-                <Text style={{ fontSize: 16 }}>✅</Text>
+                <Text style={{ fontSize: 14 }}>✅</Text>
                 <Text style={{ fontSize: 13, color: colors.success, fontWeight: "600", flex: 1 }}>{q.name}</Text>
-                <Text style={{ fontSize: 12, color: colors.gold, fontWeight: "600" }}>🎁 รับได้!</Text>
+                <View style={{ paddingHorizontal: 10, paddingVertical: 3, borderRadius: 999, backgroundColor: "rgba(48,209,88,0.12)" }}>
+                  <Text style={{ fontSize: 11, fontWeight: "600", color: colors.success }}>🎁 รับได้!</Text>
+                </View>
               </View>
             ))}
             {inProgressQuests.map(([id, q]) => {
               const p = qp[id] || 0;
               return (
                 <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 4 }}>
-                  <Text style={{ fontSize: 16, opacity: 0.5 }}>📅</Text>
+                  <Text style={{ fontSize: 14, opacity: 0.5 }}>📅</Text>
                   <Text style={{ fontSize: 13, color: colors.textDim, flex: 1 }}>{q.name}</Text>
                   <Text style={{ fontSize: 12, color: colors.primary, fontWeight: "600" }}>{p}/{q.target}</Text>
                 </View>

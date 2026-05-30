@@ -170,35 +170,45 @@ export default function UploadScreen() {
 
   // ===== RESULT SCREEN =====
   if (page.type === "result") {
-    const recent = workoutLog.filter((l) => l.imageUri).slice(0, 6);
+    const recent = workoutLog.filter((l) => l.imageUri);
+    const scoreColor = !page.score || page.score < 20 ? "rgba(48,209,88,0.1)" : page.score < 50 ? "rgba(255,159,10,0.1)" : "rgba(255,69,58,0.1)";
+    const scoreTxt = !page.score || page.score < 20 ? "✅ ผ่าน" : page.score < 50 ? "⚠️ ปานกลาง" : "❌ สูง";
+    const scoreTxtColor = !page.score || page.score < 20 ? colors.success : page.score < 50 ? colors.warning : colors.error;
+    const activityEmoji = page.activityId === "cardio" ? "🏃" : page.activityId === "weights" ? "🏋️" : page.activityId === "walk" ? "🚶" : page.activityId === "hiit" ? "💥" : page.activityId === "swim" ? "🏊" : "🧘";
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg, paddingHorizontal: 14 }}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={{ alignItems: "center", marginTop: 40 }}>
-            <Text style={{ fontSize: 64 }}>{page.ok ? "🎉" : "❌"}</Text>
+          {/* Header */}
+          <View style={{ alignItems: "center", marginTop: 28, marginBottom: 14 }}>
+            <Text style={{ fontSize: 48 }}>{page.ok ? "🎉" : "❌"}</Text>
             {page.ok ? (
-              <Text style={{ fontSize: 28, fontWeight: "800", color: colors.success, marginTop: 10 }}>+{page.coins} 🪙</Text>
+              <Text style={{ fontSize: 24, fontWeight: "800", color: colors.gold, marginTop: 6 }}>+{page.coins} 🪙</Text>
             ) : (
-              <Text style={{ fontSize: 20, fontWeight: "700", color: colors.error, marginTop: 10 }}>ไม่ผ่านการตรวจสอบ</Text>
+              <Text style={{ fontSize: 18, fontWeight: "700", color: colors.error, marginTop: 6 }}>ไม่ผ่านการตรวจสอบ</Text>
             )}
-            <Text style={{ fontSize: 13, color: colors.textDim, marginTop: 6, textAlign: "center" }}>{page.msg}</Text>
+            <Text style={{ fontSize: 12, color: colors.textDim, marginTop: 4, textAlign: "center" }}>{page.msg}</Text>
           </View>
 
           {page.ok && (<>
-            {/* Activity Info */}
+            {/* Activity Card — Calldash style */}
             {page.activity && (
-              <View style={ss.cheatBox}>
-                <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 6 }}>📝 กิจกรรมที่บันทึก</Text>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                  <Text style={{ fontSize: 28 }}>
-                    {page.activityId === "cardio" ? "🏃" : page.activityId === "weights" ? "🏋️" : page.activityId === "walk" ? "🚶" : page.activityId === "hiit" ? "💥" : page.activityId === "swim" ? "🏊" : "🧘"}
-                  </Text>
+              <View style={{ backgroundColor: scoreColor, borderRadius: 16, padding: 14, marginBottom: 10 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                  <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center", justifyContent: "center" }}>
+                    <Text style={{ fontSize: 24 }}>{activityEmoji}</Text>
+                  </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text }}>{page.activity}</Text>
-                    <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
-                      <Text style={{ fontSize: 10, color: colors.textDim }}>⏱️ {page.duration || 0}น</Text>
-                      <Text style={{ fontSize: 10, color: colors.textDim }}>📏 {page.distance || 0}กม</Text>
-                      <Text style={{ fontSize: 10, color: colors.gold }}>🔥 {page.calories || 0}kcal</Text>
+                    <Text style={{ fontSize: 14, fontWeight: "700", color: colors.text }}>{page.activity}</Text>
+                    <View style={{ flexDirection: "row", gap: 8, marginTop: 2 }}>
+                      {page.duration ? <Text style={{ fontSize: 11, color: colors.textDim }}>⏱️ {page.duration}น</Text> : null}
+                      {page.distance ? <Text style={{ fontSize: 11, color: colors.textDim }}>📏 {page.distance}กม</Text> : null}
+                      {page.calories ? <Text style={{ fontSize: 11, color: colors.gold }}>🔥 {page.calories}</Text> : null}
+                    </View>
+                  </View>
+                  <View style={{ alignItems: "flex-end" }}>
+                    <Text style={{ fontSize: 16, fontWeight: "700", color: colors.gold }}>+{page.coins}🪙</Text>
+                    <View style={{ marginTop: 4, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: scoreColor }}>
+                      <Text style={{ fontSize: 9, fontWeight: "600", color: scoreTxtColor }}>{scoreTxt}</Text>
                     </View>
                   </View>
                 </View>
@@ -218,55 +228,67 @@ export default function UploadScreen() {
               });
               if (doneQ.length === 0 && progQ.length === 0) return null;
               return (
-                <View style={ss.cheatBox}>
-                  <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 6 }}>📅 ความคืบหน้าเควส</Text>
+                <View style={{ backgroundColor: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 14, marginBottom: 10 }}>
+                  <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 8 }}>📅 ความคืบหน้าเควส</Text>
                   {doneQ.map(([id, q]) => (
-                    <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 2 }}>
+                    <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 3 }}>
                       <Text style={{ fontSize: 12 }}>✅</Text>
                       <Text style={{ fontSize: 11, color: colors.success, fontWeight: "600", flex: 1 }}>{q.name}</Text>
-                      <Text style={{ fontSize: 10, color: colors.gold }}>🎁 รับได้!</Text>
+                      <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: "rgba(48,209,88,0.12)" }}>
+                        <Text style={{ fontSize: 9, fontWeight: "600", color: colors.success }}>🎁 รับได้!</Text>
+                      </View>
                     </View>
                   ))}
                   {progQ.map(([id, q]) => (
-                    <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 2 }}>
+                    <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 3 }}>
                       <Text style={{ fontSize: 12, opacity: 0.5 }}>📅</Text>
                       <Text style={{ fontSize: 11, color: colors.textDim, flex: 1 }}>{q.name}</Text>
-                      <Text style={{ fontSize: 10, color: colors.primary }}>{questProgress[id] || 0}/{q.target}</Text>
+                      <Text style={{ fontSize: 10, color: colors.primary, fontWeight: "600" }}>{questProgress[id] || 0}/{q.target}</Text>
                     </View>
                   ))}
                 </View>
               );
             })()}
 
-            <View style={ss.cheatBox}>
-              <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 6 }}>🛡️ ระบบป้องกันการโกง</Text>
+            {/* Fraud + Stats Card */}
+            <View style={{ backgroundColor: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 14, marginBottom: 10 }}>
+              <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 8 }}>🛡️ การตรวจสอบ</Text>
               {[{ l: "Fraud Score", v: `${page.score}/100`, c: page.score > 20 ? colors.error : colors.success },
-                { l: "Risk Level", v: page.risk === "high" ? "⚠️ สูง" : page.risk === "medium" ? "⚠️ ปานกลาง" : "✅ ต่ำ", c: page.risk === "high" ? colors.error : colors.success },
+                { l: "Risk Level", v: page.risk === "high" ? "❌ สูง" : page.risk === "medium" ? "⚠️ ปานกลาง" : "✅ ต่ำ", c: page.risk === "high" ? colors.error : colors.success },
                 { l: "Streak Bonus", v: `x${streak <= 3 ? 1 : streak <= 7 ? 1.5 : 2}`, c: colors.gold },
               ].map((r, i) => (
-                <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 4, borderBottomWidth: i < 2 ? 1 : 0, borderBottomColor: colors.divider }}>
+                <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 5, borderBottomWidth: i < 2 ? 1 : 0, borderBottomColor: "rgba(255,255,255,0.04)" }}>
                   <Text style={{ fontSize: 11, color: colors.textDim }}>{r.l}</Text>
-                  <Text style={{ fontSize: 12, fontWeight: "700", color: r.c }}>{r.v}</Text>
+                  <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: r.c === colors.gold ? "rgba(255,214,10,0.12)" : "rgba(255,255,255,0.06)" }}>
+                    <Text style={{ fontSize: 10, fontWeight: "600", color: r.c }}>{r.v}</Text>
+                  </View>
                 </View>
               ))}
             </View>
+
+            {/* Recent Images */}
+            {recent.length > 0 && (
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+                {recent.slice(0, 6).map((l, i) => (
+                  <View key={i} style={{ width: "30%", aspectRatio: 1, borderRadius: 12, overflow: "hidden" }}>
+                    {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: "100%", height: "100%" }} /> :
+                      <View style={{ width: "100%", height: "100%", backgroundColor: "rgba(255,255,255,0.04)", alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
+                  </View>
+                ))}
+              </View>
+            )}
           </>)}
 
-          <Text style={{ fontSize: 14, fontWeight: "700", color: colors.text, marginTop: 14, marginBottom: 8 }}>📸 ประวัติล่าสุด</Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-            {recent.length === 0 ? <Text style={{ fontSize: 12, color: colors.textDim }}>ยังไม่มีรูป</Text> :
-              recent.map((l, i) => (
-                <View key={i} style={{ width: "30%", aspectRatio: 1, borderRadius: 8, overflow: "hidden", borderWidth: 1, borderColor: l.fraudScore && l.fraudScore > 20 ? colors.error : colors.success }}>
-                  {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: "100%", height: "100%" }} /> :
-                    <View style={{ width: "100%", height: "100%", backgroundColor: colors.card, alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
-                </View>
-              ))}
-          </View>
+          {!page.ok && (
+            <View style={{ backgroundColor: "rgba(255,69,58,0.08)", borderRadius: 16, padding: 14, marginBottom: 10 }}>
+              <Text style={{ fontSize: 12, fontWeight: "600", color: colors.error, marginBottom: 4 }}>❌ ไม่ผ่านการตรวจสอบ</Text>
+              <Text style={{ fontSize: 11, color: colors.textDim }}>{page.msg}</Text>
+            </View>
+          )}
 
-          <TouchableOpacity onPress={resetForm} style={{ marginTop: 20, padding: 14, backgroundColor: colors.primary, borderRadius: 12, alignItems: "center" }}>
+          <TouchableOpacity onPress={resetForm} style={{ padding: 14, backgroundColor: colors.primary, borderRadius: 14, alignItems: "center", marginBottom: 20 }}>
             <Text style={{ fontWeight: "700", color: "#fff" }}>{page.ok ? "📸 บันทึกอีกครั้ง" : "🔄 ลองใหม่"}</Text>
           </TouchableOpacity>
-          <View style={{ height: 40 }} />
         </ScrollView>
       </SafeAreaView>
     );
