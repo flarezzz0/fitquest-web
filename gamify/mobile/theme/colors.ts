@@ -1,6 +1,11 @@
 // 🍎 Apple Design System Colors
 // Source: getdesign.md/apple/design-md
 // Dark mode variant for fitness app
+// Reactive: use useThemeColors() hook for dynamic theming
+
+import { useEffect, useState } from "react";
+import { useColorScheme } from "react-native";
+import { useStore } from "../store/useStore";
 
 export const colors = {
   // Brand & Accent
@@ -41,3 +46,62 @@ export const colors = {
     gold: "#ffd60a",
   },
 };
+
+// Dark tokens (override specific keys)
+const darkOverrides = {
+  bg: "#1d1d1f",
+  card: "#272729",
+  cardAlt: "#2a2a2c",
+  cardDark: "#252527",
+  pureBlack: "#000000",
+  text: "#f5f5f7",
+  textDim: "#cccccc",
+  textMuted: "#7a7a7a",
+  textInk: "#1d1d1f",
+  cardBorder: "rgba(255,255,255,0.08)",
+  divider: "rgba(255,255,255,0.04)",
+};
+
+// Light tokens (override specific keys)
+const lightOverrides = {
+  bg: "#f2f2f7",
+  card: "#ffffff",
+  cardAlt: "#f5f5f7",
+  cardDark: "#e8e8ed",
+  pureBlack: "#ffffff",
+  text: "#1d1d1f",
+  textDim: "#3a3a3c",
+  textMuted: "#8e8e93",
+  textInk: "#f5f5f7",
+  cardBorder: "rgba(0,0,0,0.08)",
+  divider: "rgba(0,0,0,0.04)",
+};
+
+export function useThemeColors() {
+  const themeMode = useStore((s) => s.themeMode);
+  const systemScheme = useColorScheme();
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    const compute = (): boolean => {
+      if (themeMode === "dark") return true;
+      if (themeMode === "light") return false;
+      // system
+      if (typeof window !== "undefined" && window.matchMedia) {
+        return window.matchMedia("(prefers-color-scheme: dark)").matches;
+      }
+      return systemScheme === "dark";
+    };
+    setIsDark(compute());
+
+    if (themeMode === "system" && typeof window !== "undefined") {
+      const mq = window.matchMedia("(prefers-color-scheme: dark)");
+      const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+      mq.addEventListener("change", handler);
+      return () => mq.removeEventListener("change", handler);
+    }
+  }, [themeMode, systemScheme]);
+
+  const overrides = isDark ? darkOverrides : lightOverrides;
+  return { ...colors, ...overrides };
+}

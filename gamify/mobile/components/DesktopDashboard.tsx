@@ -50,7 +50,7 @@ export default function DesktopDashboard() {
             <Text style={{ fontSize: 24 }}>🏃</Text>
           </View>
           <View>
-            <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>{t('dashboard.welcome')} {user?.name || "flare"} 🔥{streak}</Text>
+            <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>{t('dashboard.welcome')} {user?.name || ""} 🔥{streak}</Text>
             <Text style={{ fontSize: 13, color: colors.textDim, marginTop: 2 }}>LV.{level}</Text>
           </View>
         </View>

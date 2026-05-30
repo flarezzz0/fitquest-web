@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Tabs } from "expo-router";
 import { Text, View, TouchableOpacity, StyleSheet, Platform, useWindowDimensions } from "react-native";
-import { colors } from "../../theme/colors";
+import { colors, useThemeColors } from "../../theme/colors";
 import { useStore } from "../../store/useStore";
+import { useTranslation } from "../../hooks/useTranslation";
 
 const ICONS: Record<string, string> = {
   index: "🏠",
@@ -19,6 +20,26 @@ export default function TabLayout() {
   const setLanguage = useStore((s) => s.setLanguage);
   const themeMode = useStore((s) => s.themeMode);
   const setThemeMode = useStore((s) => s.setThemeMode);
+  const { t } = useTranslation();
+  const themeColors = useThemeColors();
+
+  // Apply CSS custom properties for web reactive theming
+  useEffect(() => {
+    if (Platform.OS === "web" && typeof document !== "undefined") {
+      const root = document.documentElement;
+      root.style.setProperty("--fit-bg", themeColors.bg);
+      root.style.setProperty("--fit-card", themeColors.card);
+      root.style.setProperty("--fit-text", themeColors.text);
+      root.style.setProperty("--fit-text-dim", themeColors.textDim);
+      root.style.setProperty("--fit-text-muted", themeColors.textMuted);
+      root.style.setProperty("--fit-border", themeColors.cardBorder);
+      root.style.setProperty("--fit-primary", themeColors.primary);
+      root.style.setProperty("--fit-success", themeColors.success);
+      root.style.setProperty("--fit-warning", themeColors.warning);
+      root.style.setProperty("--fit-error", themeColors.error);
+      root.style.setProperty("--fit-gold", themeColors.gold);
+    }
+  }, [themeColors]);
 
   const toggleLang = () => setLanguage(language === "th" ? "en" : "th");
   const cycleTheme = () => {
@@ -61,11 +82,11 @@ export default function TabLayout() {
           ),
         })}
       >
-        <Tabs.Screen name="index" options={{ title: "หน้าแรก" }} />
-        <Tabs.Screen name="upload" options={{ title: "บันทึก" }} />
-        <Tabs.Screen name="quests" options={{ title: "เควส" }} />
-        <Tabs.Screen name="shop" options={{ title: "ร้านค้า" }} />
-        <Tabs.Screen name="profile" options={{ title: "โปรไฟล์" }} />
+        <Tabs.Screen name="index" options={{ title: t('nav.home') }} />
+        <Tabs.Screen name="upload" options={{ title: t('nav.upload') }} />
+        <Tabs.Screen name="quests" options={{ title: t('nav.quests') }} />
+        <Tabs.Screen name="shop" options={{ title: t('nav.shop') }} />
+        <Tabs.Screen name="profile" options={{ title: t('nav.profile') }} />
       </Tabs>
     </View>
   );
@@ -74,7 +95,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   floatingBar: {
     position: "absolute",
-    top: Platform.OS === "web" ? 12 : 50,
+    top: Platform.OS === "web" ? 48 : 80,
     right: 14,
     zIndex: 999,
     flexDirection: "row",

@@ -6,15 +6,7 @@ import { colors } from "../../theme/colors";
 import { useStore } from "../../store/useStore";
 import { uploadActivity } from "../../services/api";
 import { runClientAntiCheat } from "../../services/antiCheat";
-
-const ACTIVITIES = [
-  { id: "cardio", emoji: "🏃", name: "คาร์ดิโอ", coins: 10 },
-  { id: "walk", emoji: "🚶", name: "เดินทั่วไป", coins: 3 },
-  { id: "weights", emoji: "🏋️", name: "เวทเทรนนิ่ง", coins: 12 },
-  { id: "hiit", emoji: "💥", name: "HIIT", coins: 14 },
-  { id: "swim", emoji: "🏊", name: "ว่ายน้ำ", coins: 10 },
-  { id: "yoga", emoji: "🧘", name: "โยคะ/ยืด", coins: 6 },
-];
+import { useTranslation } from "../../hooks/useTranslation";
 
 // กิจกรรมที่มีระยะทาง (cardio/walk)
 const SHOW_DISTANCE = ["cardio", "walk"];
@@ -55,15 +47,6 @@ function calcCalories(activityId: string, durationMin: number, distanceKm: numbe
   return Math.max(cal, 50);
 }
 
-const validateInputs = (dur: string, dist: string, cal: string): string | null => {
-  const mins = parseDuration(dur);
-  if (mins < 5) return "⏱️ ระยะเวลาต้องอย่างน้อย 5 นาที";
-  if (mins > 1440) return "⏱️ ระยะเวลาต้องไม่เกิน 24 ชั่วโมง (1440 นาที)";
-  if (dist) { const d = parseFloat(dist); if (d < 0.1) return "📏 ระยะทางต้องอย่างน้อย 100 เมตร"; if (d > 100) return "📏 ระยะทางต้องไม่เกิน 100 กม."; }
-  if (cal) { const c = parseInt(cal); if (c < 50) return "🔥 แคลอรีต้องอย่างน้อย 50 kcal"; }
-  return null;
-};
-
 // Three states: "form" | "verifying" | "result"
 type PageState =
   | { type: "form" }
@@ -79,6 +62,16 @@ export default function UploadScreen() {
   const [page, setPage] = useState<PageState>({ type: "form" });
   const calUserEdited = React.useRef(false);
   const { user, streak, addCoins, addWorkout, updateStreak, backendAvailable, setBackend, workoutLog, profile, questProgress } = useStore();
+  const { t } = useTranslation();
+
+  const ACTIVITIES = [
+    { id: "cardio", emoji: "🏃", name: t('upload.activities.cardio'), coins: 10 },
+    { id: "walk", emoji: "🚶", name: t('upload.activities.walk'), coins: 3 },
+    { id: "weights", emoji: "🏋️", name: t('upload.activities.weights'), coins: 12 },
+    { id: "hiit", emoji: "💥", name: "HIIT", coins: 14 },
+    { id: "swim", emoji: "🏊", name: t('upload.activities.swim'), coins: 10 },
+    { id: "yoga", emoji: "🧘", name: t('upload.activities.yoga'), coins: 6 },
+  ];
 
   // Auto-calculate calories when duration/distance/activity changes
   useEffect(() => {
@@ -91,6 +84,15 @@ export default function UploadScreen() {
       setCal(String(auto));
     }
   }, [act, dur, dist]);
+
+  const validateInputs = (dur: string, dist: string, cal: string): string | null => {
+    const mins = parseDuration(dur);
+    if (mins < 5) return t('upload.validateDuration');
+    if (mins > 1440) return t('upload.validateDurationMax');
+    if (dist) { const d = parseFloat(dist); if (d < 0.1) return t('upload.validateDistance'); if (d > 100) return t('upload.validateDistanceMax'); }
+    if (cal) { const c = parseInt(cal); if (c < 50) return t('upload.validateCalories'); }
+    return null;
+  };
 
   const handleCalChange = (v: string) => {
     calUserEdited.current = true;

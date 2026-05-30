@@ -63,7 +63,7 @@ export default function Dashboard() {
           <View style={{ flexDirection: "row", alignItems: "center", gap: isDesktop ? 14 : 10 }}>
             <View style={s.av}><Text style={{ fontSize: isDesktop ? 28 : 22 }}>🏃</Text></View>
             <View>
-              <Text style={s.greeting}>สวัสดี {user?.name || "flare"} 🔥{streak}</Text>
+              <Text style={s.greeting}>{t('dashboard.welcome')} {user?.name || ""} 🔥{streak}</Text>
               <Text style={s.lvText}>LV.{level}</Text>
             </View>
           </View>
