@@ -260,34 +260,49 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         {user ? (<>
-        {/* Recent Activity */}
-        <Text style={{ fontSize: 14, fontWeight: "700", color: colors.text, marginTop: 10, marginBottom: 6 }}>📸 กิจกรรมล่าสุด</Text>
+        <Text style={{ fontSize: 14, fontWeight: "700", color: colors.text, marginTop: 10, marginBottom: 8 }}>📸 กิจกรรมล่าสุด</Text>
         {workoutLog.filter((l) => l.imageUri).length === 0 ? (
-          <View style={{ padding: 30, backgroundColor: "rgba(26,26,46,0.85)", borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)", alignItems: "center" }}>
+          <View style={{ padding: 30, backgroundColor: colors.card, borderRadius: 14, borderWidth: 1, borderColor: colors.cardBorder, alignItems: "center" }}>
             <Text style={{ fontSize: 32, marginBottom: 8 }}>🏃</Text>
             <Text style={{ fontSize: 13, color: colors.textDim }}>ยังไม่มีประวัติ — เริ่มออกกำลังกายครั้งแรก!</Text>
           </View>
-        ) : workoutLog.filter((l) => l.imageUri).slice(0, 4).map((l, i) => (
-          <View key={i} style={{ flexDirection: "row", gap: 10, backgroundColor: "rgba(26,26,46,0.85)", borderWidth: 1, borderColor: "rgba(255,255,255,0.06)", borderRadius: 10, padding: 8, marginBottom: 4 }}>
-            <View style={{ width: 50, height: 50, borderRadius: 8, overflow: "hidden" }}>
-              {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: 50, height: 50 }} /> :
-                <View style={{ width: 50, height: 50, backgroundColor: "rgba(255,255,255,0.04)", alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
-            </View>
-            <View style={{ flex: 1, justifyContent: "center" }}>
-              <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text }}>
-                {l.activity === "คาร์ดิโอ" ? "🏃 " : l.activity === "เวทเทรนนิ่ง" ? "🏋️ " : l.activity === "เดินทั่วไป" ? "🚶 " : l.activity === "HIIT" ? "💥 " : l.activity === "ว่ายน้ำ" ? "🏊 " : "🧘 "}{l.activity}
-              </Text>
-              <View style={{ flexDirection: "row", gap: 4, marginTop: 1 }}>
-                {l.duration ? <Text style={{ fontSize: 9, color: colors.textDim }}>⏱️{l.duration}น</Text> : null}
-                {l.calories ? <Text style={{ fontSize: 9, color: colors.gold }}>🔥{l.calories}</Text> : null}
-              </View>
-            </View>
-            <View style={{ justifyContent: "center", alignItems: "flex-end" }}>
-              <Text style={{ fontSize: 10, fontWeight: "600", color: colors.gold }}>+{l.coins}🪙</Text>
-              <Text style={{ fontSize: 8, color: colors.textMuted, marginTop: 1 }}>{new Date(l.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}</Text>
-            </View>
+        ) : (
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            {workoutLog.filter((l) => l.imageUri).slice(0, 6).map((l, i) => {
+              const statusColor = !l.fraudScore || l.fraudScore < 20 ? "rgba(48,209,88,0.12)" : l.fraudScore < 50 ? "rgba(255,159,10,0.12)" : "rgba(255,69,58,0.12)";
+              const statusTxt = !l.fraudScore || l.fraudScore < 20 ? "✅ ผ่าน" : l.fraudScore < 50 ? "⚠️ ปานกลาง" : "❌ สูง";
+              const statusTxtColor = !l.fraudScore || l.fraudScore < 20 ? colors.success : l.fraudScore < 50 ? colors.warning : colors.error;
+              return (
+                <View key={i} style={{ width: "48%", backgroundColor: statusColor, borderRadius: 14, padding: 10, marginBottom: 4 }}>
+                  {/* Top row: thumbnail + coins */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <View style={{ width: 44, height: 44, borderRadius: 10, overflow: "hidden" }}>
+                      {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: 44, height: 44 }} /> :
+                        <View style={{ width: 44, height: 44, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 10, alignItems: "center", justifyContent: "center" }}><Text style={{ fontSize: 18 }}>🏃</Text></View>}
+                    </View>
+                    <Text style={{ fontSize: 12, fontWeight: "700", color: colors.gold }}>+{l.coins}🪙</Text>
+                  </View>
+                  {/* Activity name */}
+                  <Text style={{ fontSize: 12, fontWeight: "700", color: colors.text, marginTop: 6 }}>
+                    {l.activity === "คาร์ดิโอ" ? "🏃 " : l.activity === "เวทเทรนนิ่ง" ? "🏋️ " : l.activity === "เดินทั่วไป" ? "🚶 " : l.activity === "HIIT" ? "💥 " : l.activity === "ว่ายน้ำ" ? "🏊 " : "🧘 "}{l.activity}
+                  </Text>
+                  {/* Metadata row: duration + calories */}
+                  <View style={{ flexDirection: "row", gap: 6, marginTop: 2 }}>
+                    {l.duration ? <Text style={{ fontSize: 10, color: colors.textDim }}>⏱️ {l.duration}น</Text> : null}
+                    {l.calories ? <Text style={{ fontSize: 10, color: colors.gold }}>🔥 {l.calories}</Text> : null}
+                  </View>
+                  {/* Date + status badge */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                    <Text style={{ fontSize: 9, color: colors.textMuted }}>{new Date(l.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}</Text>
+                    <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: statusColor }}>
+                      <Text style={{ fontSize: 8, fontWeight: "600", color: statusTxtColor }}>{statusTxt}</Text>
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
           </View>
-        ))}
+        )}
         </>) : null}
         <View style={{ height: 40 }} />
       </ScrollView>

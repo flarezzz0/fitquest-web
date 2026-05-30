@@ -126,27 +126,39 @@ export default function DesktopProfile() {
         <View style={{ padding: 30, backgroundColor: colors.card, borderRadius: 14, borderWidth: 1, borderColor: colors.cardBorder, alignItems: "center" }}>
           <Text style={{ fontSize: 32, marginBottom: 8 }}>🏃</Text>
           <Text style={{ fontSize: 14, color: colors.textDim }}>ยังไม่มีประวัติ</Text></View>
-      ) : workoutLog.filter((l) => l.imageUri).slice(0, 6).map((l, i) => (
-        <View key={i} style={s.historyRow}>
-          <View style={{ width: 56, height: 56, borderRadius: 10, overflow: "hidden" }}>
-            {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: 56, height: 56 }} /> :
-              <View style={{ width: 56, height: 56, backgroundColor: "rgba(255,255,255,0.04)", alignItems: "center", justifyContent: "center" }}><Text>🏃</Text></View>}
-          </View>
-          <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text }}>
-              {l.activity === "คาร์ดิโอ" ? "🏃 " : l.activity === "เวทเทรนนิ่ง" ? "🏋️ " : l.activity === "เดินทั่วไป" ? "🚶 " : l.activity === "HIIT" ? "💥 " : l.activity === "ว่ายน้ำ" ? "🏊 " : "🧘 "}{l.activity}
-            </Text>
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 2 }}>
-              {l.duration ? <Text style={{ fontSize: 11, color: colors.textDim }}>⏱️{l.duration}น</Text> : null}
-              {l.calories ? <Text style={{ fontSize: 11, color: colors.gold }}>🔥{l.calories}</Text> : null}
-            </View>
-          </View>
-          <View style={{ alignItems: "flex-end" }}>
-            <Text style={{ fontSize: 13, fontWeight: "700", color: colors.gold }}>+{l.coins}🪙</Text>
-            <Text style={{ fontSize: 10, color: colors.textMuted, marginTop: 2 }}>{new Date(l.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}</Text>
-          </View>
+      ) : (
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 14 }}>
+          {workoutLog.filter((l) => l.imageUri).slice(0, 9).map((l, i) => {
+            const statusColor = !l.fraudScore || l.fraudScore < 20 ? "rgba(48,209,88,0.1)" : l.fraudScore < 50 ? "rgba(255,159,10,0.1)" : "rgba(255,69,58,0.1)";
+            const statusTxt = !l.fraudScore || l.fraudScore < 20 ? "✅ ผ่าน" : l.fraudScore < 50 ? "⚠️ ปานกลาง" : "❌ สูง";
+            const statusTxtColor = !l.fraudScore || l.fraudScore < 20 ? colors.success : l.fraudScore < 50 ? colors.warning : colors.error;
+            return (
+              <View key={i} style={{ width: "31%", minWidth: 200, backgroundColor: statusColor, borderRadius: 16, padding: 14 }}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <View style={{ width: 52, height: 52, borderRadius: 12, overflow: "hidden" }}>
+                    {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: 52, height: 52 }} /> :
+                      <View style={{ width: 52, height: 52, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 12, alignItems: "center", justifyContent: "center" }}><Text style={{ fontSize: 22 }}>🏃</Text></View>}
+                  </View>
+                  <Text style={{ fontSize: 14, fontWeight: "700", color: colors.gold }}>+{l.coins}🪙</Text>
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: "700", color: colors.text, marginTop: 8 }}>
+                  {l.activity === "คาร์ดิโอ" ? "🏃 " : l.activity === "เวทเทรนนิ่ง" ? "🏋️ " : l.activity === "เดินทั่วไป" ? "🚶 " : l.activity === "HIIT" ? "💥 " : l.activity === "ว่ายน้ำ" ? "🏊 " : "🧘 "}{l.activity}
+                </Text>
+                <View style={{ flexDirection: "row", gap: 8, marginTop: 3 }}>
+                  {l.duration ? <Text style={{ fontSize: 11, color: colors.textDim }}>⏱️ {l.duration}น</Text> : null}
+                  {l.calories ? <Text style={{ fontSize: 11, color: colors.gold }}>🔥 {l.calories}</Text> : null}
+                </View>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 6 }}>
+                  <Text style={{ fontSize: 10, color: colors.textMuted }}>{new Date(l.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}</Text>
+                  <View style={{ paddingHorizontal: 10, paddingVertical: 3, borderRadius: 999, backgroundColor: statusColor }}>
+                    <Text style={{ fontSize: 10, fontWeight: "600", color: statusTxtColor }}>{statusTxt}</Text>
+                  </View>
+                </View>
+              </View>
+            );
+          })}
         </View>
-      ))}
+      )}
 
       {/* Edit Modal */}
       <Modal visible={showEdit} transparent animationType="fade">
