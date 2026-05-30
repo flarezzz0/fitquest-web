@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, StyleSheet, Modal, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useStore } from "../store/useStore";
+import { useTranslation } from "../hooks/useTranslation";
 import { colors } from "../theme/colors";
 
 const weeklyQuestsDef = [
@@ -12,6 +13,7 @@ const weeklyQuestsDef = [
 
 export default function DesktopDashboard() {
   const { coins, level, streak, totalWorkouts, todayCount, weekCount, workoutLog, questProgress, user, profile, setProfile } = useStore();
+  const { t } = useTranslation();
   const dailyPct = Math.min(100, (todayCount / 5) * 100);
 
   // First-time setup
@@ -48,7 +50,7 @@ export default function DesktopDashboard() {
             <Text style={{ fontSize: 24 }}>🏃</Text>
           </View>
           <View>
-            <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>สวัสดี {user?.name || "flare"} 🔥{streak}</Text>
+            <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>{t('dashboard.welcome')} {user?.name || "flare"} 🔥{streak}</Text>
             <Text style={{ fontSize: 13, color: colors.textDim, marginTop: 2 }}>LV.{level}</Text>
           </View>
         </View>
@@ -76,7 +78,7 @@ export default function DesktopDashboard() {
       {/* Daily Quest */}
       <View style={{ backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 16, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 8 }}>
-          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>✅ เควสวันนี้</Text>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>{t('dashboard.dailyQuests')}</Text>
           <Text style={{ fontSize: 14, fontWeight: "600", color: colors.primary }}>{todayCount} / 5</Text>
         </View>
         <View style={{ width: "100%", height: 8, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
@@ -87,7 +89,7 @@ export default function DesktopDashboard() {
       {/* Weekly Quests */}
       {incompleteWeekly.length > 0 && (
         <View style={{ backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 16, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
-          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>📅 เควสสัปดาห์</Text>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 10 }}>{t('dashboard.weeklyQuests')}</Text>
           {incompleteWeekly.map((q) => {
             const p = questProgress[q.id] || 0;
             const pct = Math.min(100, (p / q.target) * 100);
@@ -104,7 +106,7 @@ export default function DesktopDashboard() {
             );
           })}
           <TouchableOpacity style={{ alignSelf: "center", marginTop: 2 }}>
-            <Text style={{ fontSize: 12, color: colors.primary, fontWeight: "600" }}>ดูทั้งหมด →</Text>
+            <Text style={{ fontSize: 12, color: colors.primary, fontWeight: "600" }}>{t('dashboard.seeAll')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -112,7 +114,7 @@ export default function DesktopDashboard() {
       {/* Recent Activities */}
       {workoutLog.length > 0 && (
         <View style={{ marginBottom: 16 }}>
-          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 8 }}>📋 กิจกรรมล่าสุด</Text>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text, marginBottom: 8 }}>{t('dashboard.recentActivity')}</Text>
           {workoutLog.slice(0, 3).map((log, i) => (
             <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 8, borderBottomWidth: i < 2 ? 1 : 0, borderBottomColor: "rgba(255,255,255,0.04)" }}>
               <Text style={{ fontSize: 18 }}>
@@ -123,15 +125,15 @@ export default function DesktopDashboard() {
             </View>
           ))}
           <TouchableOpacity style={{ alignSelf: "center", marginTop: 4 }}>
-            <Text style={{ fontSize: 12, color: colors.primary, fontWeight: "600" }}>ดูทั้งหมด →</Text>
+            <Text style={{ fontSize: 12, color: colors.primary, fontWeight: "600" }}>{t('dashboard.seeAll')}</Text>
           </TouchableOpacity>
         </View>
       )}
       {workoutLog.length === 0 && (
         <View style={{ padding: 40, alignItems: "center" }}>
           <Text style={{ fontSize: 40, marginBottom: 8 }}>🏃</Text>
-          <Text style={{ fontSize: 14, color: colors.textDim }}>ยังไม่มีกิจกรรม</Text>
-          <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 4 }}>เริ่มออกกำลังกายเพื่อรับเหรียญแรกของคุณ</Text>
+          <Text style={{ fontSize: 14, color: colors.textDim }}>{t('dashboard.noActivity')}</Text>
+          <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 4 }}>{t('dashboard.noActivitySub')}</Text>
         </View>
       )}
       {/* Main Content Grid — 2 columns */}

@@ -7,12 +7,13 @@ import EmptyState from "../../components/EmptyState";
 import { useStore } from "../../store/useStore";
 import { colors } from "../../theme/colors";
 import { checkHealth } from "../../services/api";
+import { useTranslation } from "../../hooks/useTranslation";
 
 export default function Dashboard() {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width >= 768;
   const { coins, level, totalCoinsEarned, streak, frozenUsed, totalWorkouts, todayCount, weekCount, workoutLog, questProgress, setBackend, user, profile, setProfile } = useStore();
-  useEffect(() => { checkHealth().then(() => setBackend(true)).catch(() => {}); }, []);
+  const { t } = useTranslation();  useEffect(() => { checkHealth().then(() => setBackend(true)).catch(() => {}); }, []);
 
   // First-time setup
   const [showSetup, setShowSetup] = useState(false);
@@ -105,7 +106,7 @@ export default function Dashboard() {
         {/* Daily Quest Progress */}
         <View style={{ marginTop: 10, backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 14, padding: 14, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text }}>✅ เควสวันนี้</Text>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text }}>{t('dashboard.dailyQuests')}</Text>
             <Text style={{ fontSize: 13, fontWeight: "600", color: colors.primary }}>{todayCount} / 5</Text>
           </View>
           <View style={{ width: "100%", height: 6, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
@@ -116,7 +117,7 @@ export default function Dashboard() {
         {/* Weekly Quests */}
         {incompleteWeekly.length > 0 && (
           <View style={{ marginTop: 10, backgroundColor: "rgba(26,26,46,0.75)", borderRadius: 14, padding: 14, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}>
-            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text, marginBottom: 8 }}>📅 เควสสัปดาห์</Text>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text, marginBottom: 8 }}>{t('dashboard.weeklyQuests')}</Text>
             {incompleteWeekly.map((q) => {
               const p = questProgress[q.id] || 0;
               const pct = Math.min(100, (p / q.target) * 100);
@@ -133,7 +134,7 @@ export default function Dashboard() {
               );
             })}
             <TouchableOpacity style={{ alignSelf: "center", marginTop: 4 }}>
-              <Text style={{ fontSize: 11, color: colors.primary, fontWeight: "600" }}>ดูทั้งหมด →</Text>
+              <Text style={{ fontSize: 11, color: colors.primary, fontWeight: "600" }}>{t('dashboard.seeAll')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -141,7 +142,7 @@ export default function Dashboard() {
         {/* Recent Activities */}
         {workoutLog.length > 0 && (
           <View style={{ marginTop: 10 }}>
-            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text, marginBottom: 6 }}>📋 กิจกรรมล่าสุด</Text>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.text, marginBottom: 6 }}>{t('dashboard.recentActivity')}</Text>
             {workoutLog.slice(0, 3).map((log, i) => (
               <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 7, borderBottomWidth: i < 2 ? 1 : 0, borderBottomColor: "rgba(255,255,255,0.04)" }}>
                 <Text style={{ fontSize: 16 }}>
@@ -152,13 +153,13 @@ export default function Dashboard() {
               </View>
             ))}
             <TouchableOpacity style={{ alignSelf: "center", marginTop: 4 }}>
-              <Text style={{ fontSize: 11, color: colors.primary, fontWeight: "600" }}>ดูทั้งหมด →</Text>
+              <Text style={{ fontSize: 11, color: colors.primary, fontWeight: "600" }}>{t('dashboard.seeAll')}</Text>
             </TouchableOpacity>
           </View>
         )}
         {workoutLog.length === 0 && (
           <View style={{ marginTop: 10 }}>
-            <EmptyState icon="🏃" title="ยังไม่มีกิจกรรม" subtitle="เริ่มออกกำลังกายเพื่อรับเหรียญแรกของคุณ" />
+            <EmptyState icon="🏃" title={t('dashboard.noActivity')} subtitle={t('dashboard.noActivitySub')} />
           </View>
         )}
         <View style={{ height: isDesktop ? 40 : 30 }} />
