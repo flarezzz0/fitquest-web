@@ -6,7 +6,7 @@ import { colors } from "../theme/colors";
 const LV = [{ l: 1, title: "นักผจญภัยมือใหม่", badge: "🌱" }, { l: 2, title: "นักสู้ผู้เริ่มต้น", badge: "⚔️" }, { l: 3, title: "อัศวินฟิตเนส", badge: "🛡️" }, { l: 4, title: "จอมพลแห่งยิม", badge: "👑" }];
 
 export default function DesktopProfile() {
-  const { level, totalCoinsEarned, totalWorkouts, longestStreak, workoutLog, streak, todayCount, clearAllData, profile, setProfile } = useStore();
+  const { level, totalCoinsEarned, totalWorkouts, longestStreak, workoutLog, streak, todayCount, clearAllData, profile, setProfile, language, themeMode, setLanguage, setThemeMode } = useStore();
   const lv = LV[level - 1] || LV[LV.length - 1];
   const [showEdit, setShowEdit] = useState(false);
   const [displayName, setDisplayName] = useState("");
@@ -159,6 +159,48 @@ export default function DesktopProfile() {
           })}
         </View>
       )}
+
+            {/* ===== LANGUAGE + THEME TOGGLE ===== */}
+      <View style={{ marginTop: 24, backgroundColor: colors.card, borderRadius: 16, padding: 20, borderWidth: 1, borderColor: colors.cardBorder }}>
+        <Text style={{ fontSize: 12, color: colors.textDim, marginBottom: 8 }}>🌐 ภาษา / Language</Text>
+        <TouchableOpacity
+          onPress={() => setLanguage(language === "th" ? "en" : "th")}
+          style={{ width: 100, height: 34, borderRadius: 17, backgroundColor: "rgba(255,255,255,0.08)", flexDirection: "row", alignItems: "center", padding: 3, marginBottom: 20 }}
+        >
+          <Animated.View style={{
+            width: 44, height: 28, borderRadius: 14, backgroundColor: colors.primary,
+            transform: [{ translateX: language === "en" ? 50 : 0 }],
+            justifyContent: "center", alignItems: "center",
+          }}>
+            <Text style={{ fontSize: 11, fontWeight: "700", color: "#fff" }}>{language === "th" ? "ไทย" : "EN"}</Text>
+          </Animated.View>
+          <Text style={{ position: "absolute", left: language === "th" ? undefined : 10, right: language === "th" ? 8 : undefined, fontSize: 11, color: colors.textDim }}>
+            {language === "th" ? "EN" : "ไทย"}
+          </Text>
+        </TouchableOpacity>
+
+        <Text style={{ fontSize: 12, color: colors.textDim, marginBottom: 8 }}>🎨 Theme</Text>
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          {[
+            { key: "dark", icon: "🌙", label: "มืด" },
+            { key: "light", icon: "☀️", label: "สว่าง" },
+            { key: "system", icon: "📱", label: "ระบบ" },
+          ].map((m) => (
+            <TouchableOpacity
+              key={m.key} onPress={() => setThemeMode(m.key as any)}
+              style={{
+                flex: 1, paddingVertical: 12, borderRadius: 12,
+                backgroundColor: themeMode === m.key ? colors.primary : "rgba(255,255,255,0.06)",
+                alignItems: "center", gap: 4,
+                borderWidth: 1, borderColor: themeMode === m.key ? colors.primary : colors.cardBorder,
+              }}
+            >
+              <Text style={{ fontSize: 20 }}>{m.icon}</Text>
+              <Text style={{ fontSize: 11, fontWeight: "600", color: themeMode === m.key ? "#fff" : colors.textDim }}>{m.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
 
       {/* Edit Modal */}
       <Modal visible={showEdit} transparent animationType="fade">
