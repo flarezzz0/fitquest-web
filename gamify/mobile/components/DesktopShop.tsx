@@ -19,9 +19,29 @@ const ITEMS = [
   { id: "avatar_crown", icon: "👑", name: "มงกุฏ Avatar", cost: 40, cat: "cosmetic", badge: "limited" },
 ];
 
+function getNextReset(badge?: string): { label: string; hours: number; mins: number } | null {
+  if (badge === "limited") return null;
+  const now = new Date();
+  const thaiNow = new Date(now.getTime() + 7 * 3600000);
+  const todayReset = Date.UTC(thaiNow.getUTCFullYear(), thaiNow.getUTCMonth(), thaiNow.getUTCDate(), 22, 0, 0);
+  let resetTime: number;
+  if (badge === "weekly") {
+    const dw = (thaiNow.getUTCDay() + 6) % 7;
+    const daysToMon = dw === 0 ? 7 : dw;
+    resetTime = todayReset + daysToMon * 86400000;
+  } else {
+    resetTime = now.getTime() < todayReset ? todayReset : todayReset + 86400000;
+  }
+  const diffMs = resetTime - now.getTime();
+  if (diffMs <= 0) return { label: "เร็วๆ นี้", hours: 0, mins: 0 };
+  const totalMins = Math.floor(diffMs / 60000);
+  return { label: badge === "weekly" ? "รีเซ็ตวันจันทร์" : "รีเซ็ตพรุ่งนี้", hours: Math.floor(totalMins / 60), mins: totalMins % 60 };
+}
+
 export default function DesktopShop() {
   const [cat, setCat] = useState("all");
-  const { coins, shopBought, spendCoins, buyItem } = useStore();
+  const { coins, shopBought, spendCoins, buyItem, checkDailyReset, checkWeeklyReset } = useStore();
+  checkDailyReset(); checkWeeklyReset();
   const items = cat === "all" ? ITEMS : ITEMS.filter((i) => i.cat === cat);
   const buy = (id: string, cost: number) => {
     if (shopBought.includes(id)) return;
@@ -71,7 +91,14 @@ export default function DesktopShop() {
               <Text style={s.itemName}>{item.name}</Text>
               <Text style={s.itemCost}>{item.cost} 🪙</Text>
               {owned ? (
-                <View style={s.ownedBadge}><Text style={s.ownedText}>✅ มีแล้ว</Text></View>
+                <View style={{ alignItems: "center" }}>
+                  <View style={s.ownedBadge}><Text style={s.ownedText}>✅ มีแล้ว</Text></View>
+                  {(() => {
+                    const r = getNextReset(item.badge);
+                    if (!r) return null;
+                    return <Text style={{ fontSize: 10, color: colors.textMuted, marginTop: 3 }}>{r.hours > 0 ? `${r.hours}ชม ` : ""}{r.mins}นาที</Text>;
+                  })()}
+                </View>
               ) : (
                 <TouchableOpacity disabled={!canBuy} style={[s.buyBtn, !canBuy && { opacity: 0.3 }]} onPress={() => buy(item.id, item.cost)}>
                   <Text style={s.buyText}>{canBuy ? "ซื้อเลย" : "🪙 ไม่พอ"}</Text>
