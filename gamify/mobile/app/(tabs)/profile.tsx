@@ -251,37 +251,6 @@ export default function ProfileScreen() {
           )}
         </View>
 
-        {/* Language & Theme Toggles */}
-        <View style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
-          {/* Language Toggle */}
-          <TouchableOpacity
-            style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, padding: 14, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, borderRadius: 12 }}
-            onPress={() => {
-              const { language, setLanguage } = useStore.getState();
-              setLanguage(language === "th" ? "en" : "th");
-            }}>
-            <Text style={{ fontSize: 16 }}>🌐</Text>
-            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>
-              {useStore.getState().language === "th" ? "TH" : "EN"}
-            </Text>
-          </TouchableOpacity>
-          {/* Theme Toggle */}
-          <TouchableOpacity
-            style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, padding: 14, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, borderRadius: 12 }}
-            onPress={() => {
-              const { themeMode, setThemeMode } = useStore.getState();
-              const next = themeMode === "dark" ? "light" : themeMode === "light" ? "system" : "dark";
-              setThemeMode(next);
-            }}>
-            <Text style={{ fontSize: 16 }}>
-              {useStore.getState().themeMode === "dark" ? "🌙" : useStore.getState().themeMode === "light" ? "☀️" : "📱"}
-            </Text>
-            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>
-              {useStore.getState().themeMode === "dark" ? "Dark" : useStore.getState().themeMode === "light" ? "Light" : "System"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
         {/* Clear Data Button */}
         <TouchableOpacity
           style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, padding: 14, backgroundColor: "rgba(255,69,58,0.08)", borderWidth: 1, borderColor: "rgba(255,69,58,0.2)", borderRadius: 12 }}

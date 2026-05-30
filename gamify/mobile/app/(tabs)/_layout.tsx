@@ -1,6 +1,8 @@
+import React from "react";
 import { Tabs } from "expo-router";
-import { Text, StyleSheet, Platform, useWindowDimensions } from "react-native";
+import { Text, View, TouchableOpacity, StyleSheet, Platform, useWindowDimensions } from "react-native";
 import { colors } from "../../theme/colors";
+import { useStore } from "../../store/useStore";
 
 const ICONS: Record<string, string> = {
   index: "🏠",
@@ -13,31 +15,85 @@ const ICONS: Record<string, string> = {
 export default function TabLayout() {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width >= 768;
+  const language = useStore((s) => s.language);
+  const setLanguage = useStore((s) => s.setLanguage);
+  const themeMode = useStore((s) => s.themeMode);
+  const setThemeMode = useStore((s) => s.setThemeMode);
+
+  const toggleLang = () => setLanguage(language === "th" ? "en" : "th");
+  const cycleTheme = () => {
+    const next = themeMode === "dark" ? "light" : themeMode === "light" ? "system" : "dark";
+    setThemeMode(next);
+  };
 
   return (
-    <Tabs
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarStyle: isDesktop ? desktopStyles.tab : mobileStyles.tab,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarLabelStyle: isDesktop ? desktopStyles.label : mobileStyles.label,
-        tabBarItemStyle: isDesktop ? desktopStyles.item : undefined,
-        tabBarIcon: ({ focused }) => (
-          <Text style={[isDesktop ? desktopStyles.icon : mobileStyles.icon, { opacity: focused ? 1 : 0.5 }]}>
-            {ICONS[route.name] || "❓"}
+    <View style={{ flex: 1 }}>
+      {/* Floating Settings — top right */}
+      <View style={styles.floatingBar}>
+        {/* Language toggle */}
+        <TouchableOpacity onPress={toggleLang} style={styles.pill}>
+          <Text style={styles.pillIcon}>🌐</Text>
+          <Text style={styles.pillText}>{language === "th" ? "TH" : "EN"}</Text>
+        </TouchableOpacity>
+        {/* Theme toggle */}
+        <TouchableOpacity onPress={cycleTheme} style={styles.pill}>
+          <Text style={styles.pillIcon}>
+            {themeMode === "dark" ? "🌙" : themeMode === "light" ? "☀️" : "📱"}
           </Text>
-        ),
-      })}
-    >
-      <Tabs.Screen name="index" options={{ title: "หน้าแรก" }} />
-      <Tabs.Screen name="upload" options={{ title: "บันทึก" }} />
-      <Tabs.Screen name="quests" options={{ title: "เควส" }} />
-      <Tabs.Screen name="shop" options={{ title: "ร้านค้า" }} />
-      <Tabs.Screen name="profile" options={{ title: "โปรไฟล์" }} />
-    </Tabs>
+          <Text style={styles.pillText}>
+            {themeMode === "dark" ? "Dark" : themeMode === "light" ? "Light" : "Auto"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <Tabs
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarStyle: isDesktop ? desktopStyles.tab : mobileStyles.tab,
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textMuted,
+          tabBarLabelStyle: isDesktop ? desktopStyles.label : mobileStyles.label,
+          tabBarItemStyle: isDesktop ? desktopStyles.item : undefined,
+          tabBarIcon: ({ focused }) => (
+            <Text style={[isDesktop ? desktopStyles.icon : mobileStyles.icon, { opacity: focused ? 1 : 0.5 }]}>
+              {ICONS[route.name] || "❓"}
+            </Text>
+          ),
+        })}
+      >
+        <Tabs.Screen name="index" options={{ title: "หน้าแรก" }} />
+        <Tabs.Screen name="upload" options={{ title: "บันทึก" }} />
+        <Tabs.Screen name="quests" options={{ title: "เควส" }} />
+        <Tabs.Screen name="shop" options={{ title: "ร้านค้า" }} />
+        <Tabs.Screen name="profile" options={{ title: "โปรไฟล์" }} />
+      </Tabs>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  floatingBar: {
+    position: "absolute",
+    top: Platform.OS === "web" ? 12 : 50,
+    right: 14,
+    zIndex: 999,
+    flexDirection: "row",
+    gap: 6,
+  },
+  pill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(39,39,41,0.85)",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+  pillIcon: { fontSize: 12 },
+  pillText: { fontSize: 10, fontWeight: "600", color: colors.text },
+});
 
 const mobileStyles = StyleSheet.create({
   tab: {
