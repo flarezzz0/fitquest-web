@@ -171,18 +171,27 @@ export default function UploadScreen() {
   // ===== RESULT SCREEN =====
   if (page.type === "result") {
     const recent = workoutLog.filter((l) => l.imageUri);
-    const scoreColor = !page.score || page.score < 20 ? "rgba(48,209,88,0.1)" : page.score < 50 ? "rgba(255,159,10,0.1)" : "rgba(255,69,58,0.1)";
+    const scoreColor = !page.score || page.score < 20 ? "rgba(48,209,88,0.08)" : page.score < 50 ? "rgba(255,159,10,0.08)" : "rgba(255,69,58,0.08)";
     const scoreTxt = !page.score || page.score < 20 ? "✅ ผ่าน" : page.score < 50 ? "⚠️ ปานกลาง" : "❌ สูง";
     const scoreTxtColor = !page.score || page.score < 20 ? colors.success : page.score < 50 ? colors.warning : colors.error;
     const activityEmoji = page.activityId === "cardio" ? "🏃" : page.activityId === "weights" ? "🏋️" : page.activityId === "walk" ? "🚶" : page.activityId === "hiit" ? "💥" : page.activityId === "swim" ? "🏊" : "🧘";
+    const QUOTES = [
+      "🏆 แค่เริ่มต้น ก็เก่งกว่าเมื่อวานแล้ว",
+      "💪 ความพยายามไม่เคยทรยศใคร",
+      "🔥 ขยับทีละก้าว เปลี่ยนทีละวัน",
+      "🌟 ร่างกายแข็งแรง จิตใจแจ่มใส",
+      "🎯 ไม่ต้องเร็ว แค่ไม่หยุดก็พอ",
+    ];
+    const randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg, paddingHorizontal: 14 }}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Header */}
-          <View style={{ alignItems: "center", marginTop: 28, marginBottom: 14 }}>
-            <Text style={{ fontSize: 48 }}>{page.ok ? "🎉" : "❌"}</Text>
+          {/* 🎉 Header */}
+          <View style={{ alignItems: "center", marginTop: 24, marginBottom: 16 }}>
+            <Text style={{ fontSize: 44 }}>{page.ok ? "🎉" : "❌"}</Text>
             {page.ok ? (
-              <Text style={{ fontSize: 24, fontWeight: "800", color: colors.gold, marginTop: 6 }}>+{page.coins} 🪙</Text>
+              <Text style={{ fontSize: 26, fontWeight: "800", color: colors.gold, marginTop: 4 }}>+{page.coins} 🪙</Text>
             ) : (
               <Text style={{ fontSize: 18, fontWeight: "700", color: colors.error, marginTop: 6 }}>ไม่ผ่านการตรวจสอบ</Text>
             )}
@@ -190,32 +199,25 @@ export default function UploadScreen() {
           </View>
 
           {page.ok && (<>
-            {/* Activity Card — Calldash style */}
+            {/* ⭐ Activity Hero — ใหญ่ โดดเด่น */}
             {page.activity && (
-              <View style={{ backgroundColor: scoreColor, borderRadius: 16, padding: 14, marginBottom: 10 }}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                  <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center", justifyContent: "center" }}>
-                    <Text style={{ fontSize: 24 }}>{activityEmoji}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 14, fontWeight: "700", color: colors.text }}>{page.activity}</Text>
-                    <View style={{ flexDirection: "row", gap: 8, marginTop: 2 }}>
-                      {page.duration ? <Text style={{ fontSize: 11, color: colors.textDim }}>⏱️ {page.duration}น</Text> : null}
-                      {page.distance ? <Text style={{ fontSize: 11, color: colors.textDim }}>📏 {page.distance}กม</Text> : null}
-                      {page.calories ? <Text style={{ fontSize: 11, color: colors.gold }}>🔥 {page.calories}</Text> : null}
-                    </View>
-                  </View>
-                  <View style={{ alignItems: "flex-end" }}>
-                    <Text style={{ fontSize: 16, fontWeight: "700", color: colors.gold }}>+{page.coins}🪙</Text>
-                    <View style={{ marginTop: 4, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: scoreColor }}>
-                      <Text style={{ fontSize: 9, fontWeight: "600", color: scoreTxtColor }}>{scoreTxt}</Text>
-                    </View>
-                  </View>
+              <View style={{ backgroundColor: scoreColor, borderRadius: 20, padding: 20, marginBottom: 12, alignItems: "center" }}>
+                <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: "rgba(255,255,255,0.08)", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+                  <Text style={{ fontSize: 32 }}>{activityEmoji}</Text>
+                </View>
+                <Text style={{ fontSize: 18, fontWeight: "700", color: colors.text, marginBottom: 4 }}>{page.activity}</Text>
+                <View style={{ flexDirection: "row", gap: 12, marginBottom: 8 }}>
+                  {page.duration ? <Text style={{ fontSize: 12, color: colors.textDim }}>⏱️ {page.duration}น</Text> : null}
+                  {page.distance ? <Text style={{ fontSize: 12, color: colors.textDim }}>📏 {page.distance}กม</Text> : null}
+                  {page.calories ? <Text style={{ fontSize: 12, color: colors.gold }}>🔥 {page.calories}kcal</Text> : null}
+                </View>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999, backgroundColor: scoreColor }}>
+                  <Text style={{ fontSize: 11, fontWeight: "600", color: scoreTxtColor }}>{scoreTxt}</Text>
                 </View>
               </View>
             )}
 
-            {/* Quest Progress */}
+            {/* 📅 Quest Progress — thin bars */}
             {(() => {
               const DQ_MAP: Record<string, { name: string; target: number }> = {
                 d_cardio_20: { name: "🏃‍♂️ คาร์ดิโอ 20 นาที", target: 20 },
@@ -228,47 +230,45 @@ export default function UploadScreen() {
               });
               if (doneQ.length === 0 && progQ.length === 0) return null;
               return (
-                <View style={{ backgroundColor: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 14, marginBottom: 10 }}>
-                  <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 8 }}>📅 ความคืบหน้าเควส</Text>
+                <View style={{ marginBottom: 12 }}>
+                  <Text style={{ fontSize: 11, fontWeight: "600", color: colors.textDim, marginBottom: 6 }}>📅 ความคืบหน้าเควส</Text>
                   {doneQ.map(([id, q]) => (
                     <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 3 }}>
-                      <Text style={{ fontSize: 12 }}>✅</Text>
-                      <Text style={{ fontSize: 11, color: colors.success, fontWeight: "600", flex: 1 }}>{q.name}</Text>
-                      <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: "rgba(48,209,88,0.12)" }}>
-                        <Text style={{ fontSize: 9, fontWeight: "600", color: colors.success }}>🎁 รับได้!</Text>
+                      <Text style={{ fontSize: 11 }}>✅</Text>
+                      <Text style={{ fontSize: 10, color: colors.success, flex: 1 }}>{q.name}</Text>
+                      <Text style={{ fontSize: 10, fontWeight: "600", color: colors.success }}>🎁</Text>
+                    </View>
+                  ))}
+                  {progQ.map(([id, q]) => {
+                    const p = questProgress[id] || 0;
+                    const pct = Math.min(100, (p / q.target) * 100);
+                    return (
+                      <View key={id} style={{ marginBottom: 4 }}>
+                        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                          <Text style={{ fontSize: 10, color: colors.textDim }}>{q.name}</Text>
+                          <Text style={{ fontSize: 9, color: colors.textMuted }}>{p}/{q.target}</Text>
+                        </View>
+                        <View style={{ width: "100%", height: 4, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+                          <View style={{ height: "100%", width: `${pct}%`, backgroundColor: colors.primary, borderRadius: 2 }} />
+                        </View>
                       </View>
-                    </View>
-                  ))}
-                  {progQ.map(([id, q]) => (
-                    <View key={id} style={{ flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 3 }}>
-                      <Text style={{ fontSize: 12, opacity: 0.5 }}>📅</Text>
-                      <Text style={{ fontSize: 11, color: colors.textDim, flex: 1 }}>{q.name}</Text>
-                      <Text style={{ fontSize: 10, color: colors.primary, fontWeight: "600" }}>{questProgress[id] || 0}/{q.target}</Text>
-                    </View>
-                  ))}
+                    );
+                  })}
                 </View>
               );
             })()}
 
-            {/* Fraud + Stats Card */}
-            <View style={{ backgroundColor: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 14, marginBottom: 10 }}>
-              <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text, marginBottom: 8 }}>🛡️ การตรวจสอบ</Text>
-              {[{ l: "Fraud Score", v: `${page.score}/100`, c: page.score > 20 ? colors.error : colors.success },
-                { l: "Risk Level", v: page.risk === "high" ? "❌ สูง" : page.risk === "medium" ? "⚠️ ปานกลาง" : "✅ ต่ำ", c: page.risk === "high" ? colors.error : colors.success },
-                { l: "Streak Bonus", v: `x${streak <= 3 ? 1 : streak <= 7 ? 1.5 : 2}`, c: colors.gold },
-              ].map((r, i) => (
-                <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 5, borderBottomWidth: i < 2 ? 1 : 0, borderBottomColor: "rgba(255,255,255,0.04)" }}>
-                  <Text style={{ fontSize: 11, color: colors.textDim }}>{r.l}</Text>
-                  <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: r.c === colors.gold ? "rgba(255,214,10,0.12)" : "rgba(255,255,255,0.06)" }}>
-                    <Text style={{ fontSize: 10, fontWeight: "600", color: r.c }}>{r.v}</Text>
-                  </View>
-                </View>
-              ))}
+            {/* 🛡️ Fraud — subtle card */}
+            <View style={{ backgroundColor: "rgba(255,255,255,0.03)", borderRadius: 14, padding: 12, marginBottom: 12 }}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                <Text style={{ fontSize: 10, color: colors.textMuted }}>🛡️ Fraud: {page.score}/100</Text>
+                <Text style={{ fontSize: 10, color: colors.textMuted }}>x{streak <= 3 ? 1 : streak <= 7 ? 1.5 : 2} Streak</Text>
+              </View>
             </View>
 
-            {/* Recent Images */}
-            {recent.length > 0 && (
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+            {/* 📸 Recent Images or Quote */}
+            {recent.length > 0 ? (
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
                 {recent.slice(0, 6).map((l, i) => (
                   <View key={i} style={{ width: "30%", aspectRatio: 1, borderRadius: 12, overflow: "hidden" }}>
                     {l.imageUri ? <Image source={{ uri: l.imageUri }} style={{ width: "100%", height: "100%" }} /> :
@@ -276,11 +276,15 @@ export default function UploadScreen() {
                   </View>
                 ))}
               </View>
+            ) : (
+              <View style={{ backgroundColor: "rgba(255,255,255,0.03)", borderRadius: 14, padding: 16, marginBottom: 12, alignItems: "center" }}>
+                <Text style={{ fontSize: 12, color: colors.textDim, textAlign: "center", fontStyle: "italic" }}>{randomQuote}</Text>
+              </View>
             )}
           </>)}
 
           {!page.ok && (
-            <View style={{ backgroundColor: "rgba(255,69,58,0.08)", borderRadius: 16, padding: 14, marginBottom: 10 }}>
+            <View style={{ backgroundColor: "rgba(255,69,58,0.08)", borderRadius: 16, padding: 14, marginBottom: 12 }}>
               <Text style={{ fontSize: 12, fontWeight: "600", color: colors.error, marginBottom: 4 }}>❌ ไม่ผ่านการตรวจสอบ</Text>
               <Text style={{ fontSize: 11, color: colors.textDim }}>{page.msg}</Text>
             </View>
