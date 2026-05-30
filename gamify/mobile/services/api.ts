@@ -1,10 +1,13 @@
 import axios from "axios";
 import { Platform } from "react-native";
 
+// ❌ Web (Vercel): ไม่มี backend → ปล่อยว่าง ให้เช็ค backendAvailable ก่อน call
+// ✅ Mobile: ชี้ไป localhost
 const BASE_URL = Platform.select({
   android: "http://10.0.2.2:3456/api",
   ios: "http://localhost:3456/api",
-  default: "http://192.168.183.126:3456/api",
+  web: "", // Vercel HTTPS → ไม่สามารถ call HTTP backend
+  default: "http://localhost:3456/api",
 });
 
 export const api = axios.create({
