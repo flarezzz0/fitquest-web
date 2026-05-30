@@ -11,9 +11,7 @@ const weeklyQuestsDef = [
 ];
 
 export default function DesktopDashboard() {
-  const { coins, level, totalCoinsEarned, streak, frozenUsed, totalWorkouts, todayCount, weekCount, workoutLog, questProgress, user, profile, setProfile } = useStore();
-
-  const mult = streak <= 0 ? 1 : streak <= 3 ? 1 : streak <= 7 ? 1.5 : 2;
+  const { coins, level, streak, totalWorkouts, todayCount, weekCount, workoutLog, questProgress, user, profile, setProfile } = useStore();
   const dailyPct = Math.min(100, (todayCount / 5) * 100);
 
   // First-time setup
@@ -179,81 +177,4 @@ export default function DesktopDashboard() {
 const styles = StyleSheet.create({
   container: { padding: 32, maxWidth: 1200, width: "100%" },
   pageHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 28 },
-  pageTitle: { fontSize: 28, fontWeight: "700", color: colors.text },
-  pageSub: { fontSize: 14, color: colors.textDim, marginTop: 4 },
-  headerRight: { flexDirection: "row", gap: 12, alignItems: "center" },
-  levelPill: { backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 9999 },
-  levelText: { fontSize: 14, fontWeight: "600", color: "#fff" },
-
-  // Stats row
-  statsRow: { flexDirection: "row", gap: 16, marginBottom: 28 },
-  statCard: {
-    flex: 1,
-    backgroundColor: colors.card,
-    borderRadius: 14,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-  },
-  statValue: { fontSize: 28, fontWeight: "700", color: colors.text },
-  statLabel: { fontSize: 13, color: colors.textDim, marginTop: 6 },
-
-  // Main 2-column grid
-  mainGrid: { flexDirection: "row", gap: 24 },
-  leftCol: { flex: 3 },
-  rightCol: { flex: 2 },
-
-  // Progress card
-  progressCard: {
-    backgroundColor: colors.card,
-    borderWidth: 1, borderColor: colors.cardBorder,
-    borderRadius: 14, padding: 20, marginBottom: 16,
-  },
-  progressHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
-  progressTitle: { fontSize: 15, fontWeight: "600", color: colors.text },
-  progressCount: { fontSize: 14, color: colors.textDim },
-  progressBar: { height: 10, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 5, overflow: "hidden" },
-  progressFill: { height: "100%", backgroundColor: colors.primary, borderRadius: 5 },
-
-  // Double card row
-  doubleRow: { flexDirection: "row", gap: 14, marginBottom: 24 },
-
-  // Section title
-  sectionTitle: { fontSize: 16, fontWeight: "600", color: colors.text, marginBottom: 12 },
-
-  // Empty box
-  emptyBox: { padding: 24, backgroundColor: colors.card, borderRadius: 14, borderWidth: 1, borderColor: colors.cardBorder, alignItems: "center" },
-
-  // Recent
-  recentRow: {
-    flexDirection: "row", alignItems: "center", gap: 12,
-    backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder,
-    borderRadius: 12, padding: 14, marginBottom: 8,
-  },
-  recentInfo: { flex: 1 },
-  recentName: { fontSize: 14, fontWeight: "500", color: colors.text },
-  recentDate: { fontSize: 11, color: colors.textMuted, marginTop: 2 },
-  recentCoins: { fontSize: 14, fontWeight: "700", color: colors.gold },
-
-  // Quests
-  questsContainer: { marginBottom: 20 },
-  questCard: {
-    backgroundColor: colors.card,
-    borderWidth: 1, borderColor: colors.cardBorder,
-    borderRadius: 14, padding: 16, marginBottom: 10,
-  },
-  questInfo: { flexDirection: "row", justifyContent: "space-between", marginBottom: 8 },
-  questName: { fontSize: 13, fontWeight: "500", color: colors.text },
-  questProgress: { fontSize: 13, color: colors.gold, fontWeight: "600" },
-  questBar: { height: 8, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" },
-  questFill: { height: "100%", backgroundColor: colors.primary, borderRadius: 4 },
-
-  // Info card
-  infoCard: {
-    backgroundColor: "rgba(0,102,204,0.06)",
-    borderWidth: 1, borderColor: "rgba(0,102,204,0.15)",
-    borderRadius: 14, padding: 20,
-  },
-  infoTitle: { fontSize: 14, fontWeight: "600", color: colors.primary, marginBottom: 8 },
-  infoText: { fontSize: 13, color: colors.textDim, lineHeight: 20 },
 });
