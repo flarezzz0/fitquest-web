@@ -257,12 +257,22 @@ export const useStore = create<AppState>((set, get) => ({
     const last = get().lastWeeklyReset;
     if (!last || new Date(last).getTime() < reset) set({ lastWeeklyReset: new Date(reset).toISOString() });
   },
-  clearAllData: () => set({
-    user: null,
-    coins: 0, totalCoinsEarned: 0, streak: 0, longestStreak: 0,
-    totalWorkouts: 0, todayCount: 0, weekCount: 0, level: 1,
-    workoutLog: [], questProgress: {}, questClaimed: [], shopBought: [],
-  }),
+  clearAllData: () => {
+    set((s) => ({
+      coins: 0, totalCoinsEarned: 0, streak: 0, longestStreak: 0,
+      totalWorkouts: 0, todayCount: 0, weekCount: 0, level: 1,
+      workoutLog: [], questProgress: {}, questClaimed: [], shopBought: [],
+    }));
+    // 📡 sync ขึ้น cloud
+    const { user } = get();
+    if (user?.id) {
+      supabase.from("users").update({
+        coins: 0, total_coins_earned: 0,
+        streak: 0, longest_streak: 0,
+        total_workouts: 0, level: 1,
+      }).eq("id", user.id).then(() => {});
+    }
+  },
 
   hydrate: async () => {
     try {
